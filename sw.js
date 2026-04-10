@@ -1,5 +1,11 @@
-const CACHE = 'timer-v1';
-const ASSETS = ['/focus_app/', '/focus_app/index.html', '/focus_app/manifest.json'];
+const CACHE = 'day-v1';
+const ASSETS = [
+  '/focus_app/',
+  '/focus_app/index.html',
+  '/focus_app/manifest.json',
+  '/focus_app/icon-192.png',
+  '/focus_app/icon-512.png'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));

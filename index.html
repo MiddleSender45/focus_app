@@ -3,487 +3,609 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0a0a" id="themeColor" />
+  <meta name="theme-color" content="#0f0f1a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="30" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Day" />
   <link rel="manifest" href="manifest.json" />
-  <title>30</title>
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <title>Day</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0a0a0a;
-      --fg: #f0ede6;
-      --muted: #4a4845;
-      --accent: #c8b89a;
-      --ring: #3a3835;
-      --danger: #c0503a;
+      --bg: #0f0f1a; --surface: #1a1a2e; --surface2: #22223a;
+      --border: rgba(255,255,255,0.08); --fg: #e8e6f0; --muted: #7a7890;
+      --accent: #a78bfa; --accent2: #60a5fa; --accent3: #34d399;
+      --danger: #f87171; --radius: 14px; --radius-sm: 8px;
     }
+    html,body{height:100%;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden;}
+    .app{display:flex;flex-direction:column;height:100%;}
+    .tab-content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 20px 100px;}
+    .tab-content::-webkit-scrollbar{width:4px;}
+    .tab-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    .panel{display:none;} .panel.active{display:block;}
+    .nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+    .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 0;background:none;border:none;cursor:pointer;color:var(--muted);transition:color .2s;font-size:10px;letter-spacing:.5px;text-transform:uppercase;font-family:inherit;}
+    .nav-btn svg{width:22px;height:22px;transition:transform .2s;}
+    .nav-btn.active{color:var(--accent);} .nav-btn.active svg{transform:scale(1.1);}
+    h2{font-size:22px;font-weight:600;margin-bottom:4px;}
+    .subtitle{font-size:13px;color:var(--muted);margin-bottom:24px;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
+    .card-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+    input[type=text],input[type=date],input[type=time],input[type=number],textarea,select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--fg);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;}
+    input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+    textarea{resize:vertical;min-height:80px;line-height:1.6;}
+    select option{background:var(--surface2);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);border:none;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .2s,transform .15s;font-family:inherit;}
+    .btn:active{transform:scale(.97);}
+    .btn-primary{background:var(--accent);color:#0f0f1a;}
+    .btn-secondary{background:var(--surface2);color:var(--fg);border:1px solid var(--border);}
+    .btn-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3);}
+    .btn-sm{padding:6px 12px;font-size:12px;} .btn-full{width:100%;}
+    .row{display:flex;gap:10px;} .row>*{flex:1;}
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;user-select:none;}
+    .pill.selected{background:rgba(167,139,250,.15);border-color:var(--accent);color:var(--accent);}
+    .stars{display:flex;gap:6px;margin-top:6px;}
+    .star{font-size:22px;cursor:pointer;opacity:.3;transition:opacity .15s,transform .1s;user-select:none;}
+    .star.lit{opacity:1;} .star:active{transform:scale(1.3);}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
+    .empty-state .icon{font-size:36px;margin-bottom:12px;}
 
-    :root.break {
-      --bg: #f5f0e8;
-      --fg: #2a2724;
-      --muted: #9a9590;
-      --accent: #7a9e8a;
-      --ring: #d8d0c4;
-    }
+    /* TIMER */
+    .timer-wrap{text-align:center;padding-top:10px;}
+    .timer-ring-wrap{position:relative;width:260px;height:260px;margin:0 auto 32px;cursor:pointer;}
+    .timer-ring-wrap svg{transform:rotate(-90deg);width:100%;height:100%;}
+    .ring-track{fill:none;stroke:var(--surface2);stroke-width:4;}
+    .ring-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .5s ease;}
+    .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+    .timer-time{font-family:'Courier New',monospace;font-size:52px;font-weight:300;letter-spacing:-2px;line-height:1;transition:color .4s;}
+    .timer-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+    .timer-badge{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);opacity:0;transition:opacity .4s;margin-top:2px;}
+    .timer-badge.show{opacity:1;}
+    .timer-controls{display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:28px;}
+    .t-btn{background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:color .2s,transform .15s;}
+    .t-btn:hover{color:var(--fg);} .t-btn:active{transform:scale(.9);}
+    .t-btn-play{width:64px;height:64px;border-radius:50%;border:1.5px solid var(--surface2);color:var(--fg);}
+    .timer-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+    .stat-val{font-size:20px;font-weight:600;} .stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:2px;}
+    .break-hint{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);opacity:0;transition:opacity .5s .3s;margin-bottom:20px;min-height:16px;}
+    .break-hint.show{opacity:1;}
+    .ring-fill.focus{stroke:var(--accent);} .ring-fill.break{stroke:var(--accent3);} .ring-fill.urgent{stroke:var(--danger);}
+    .timer-time.urgent{color:var(--danger);}
 
-    html {
-      transition: background 0.8s ease;
-      background: var(--bg);
-    }
+    /* JOURNAL */
+    .journal-date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .journal-date-nav .date-label{font-size:16px;font-weight:600;}
+    .nav-arrow{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px 10px;transition:color .2s;}
+    .nav-arrow:hover{color:var(--fg);}
+    .rating-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .rating-name{font-size:14px;}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;}
+    .toggle-label{font-size:14px;}
+    .toggle{width:44px;height:24px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;position:relative;transition:background .2s;}
+    .toggle.on{background:var(--accent);border-color:var(--accent);}
+    .toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:2px;left:2px;transition:transform .2s;}
+    .toggle.on::after{transform:translateX(20px);}
+    .expandable{overflow:hidden;max-height:0;transition:max-height .3s ease;}
+    .expandable.open{max-height:500px;}
+    .expandable-inner{padding-top:12px;}
 
-    html, body {
-      height: 100%;
-      color: var(--fg);
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
-      overflow: hidden;
-    }
+    /* GOALS */
+    .goal-tabs{display:flex;gap:8px;margin-bottom:20px;}
+    .goal-tab{padding:6px 16px;border-radius:999px;font-size:13px;cursor:pointer;background:var(--surface2);border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+    .goal-tab.active{background:rgba(167,139,250,.15);border-color:var(--accent);color:var(--accent);}
+    .goal-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;}
+    .goal-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;cursor:pointer;transition:all .2s;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+    .goal-check.done{background:var(--accent3);border-color:var(--accent3);}
+    .goal-text{flex:1;font-size:14px;line-height:1.5;}
+    .goal-text.done{text-decoration:line-through;color:var(--muted);}
+    .goal-date{font-size:11px;color:var(--muted);margin-top:3px;}
 
-    body {
-      background: var(--bg);
-      transition: background 0.8s ease, color 0.8s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
+    /* CALENDAR */
+    .cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .cal-month-label{font-size:18px;font-weight:600;}
+    .cal-nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px 10px;}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;}
+    .cal-day-name{text-align:center;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0;}
+    .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;border-radius:50%;cursor:pointer;transition:background .15s;position:relative;}
+    .cal-day:hover{background:var(--surface2);}
+    .cal-day.today{background:rgba(167,139,250,.2);color:var(--accent);font-weight:600;}
+    .cal-day.selected{background:var(--accent);color:#0f0f1a;font-weight:600;}
+    .cal-day.has-tasks::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent2);}
+    .cal-day.empty{cursor:default;}
+    .task-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .task-list-date{font-size:14px;font-weight:600;}
+    .task-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;}
+    .task-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;transition:all .2s;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+    .task-check.done{background:var(--accent3);border-color:var(--accent3);color:#0f0f1a;}
+    .task-info{flex:1;}
+    .task-title{font-size:14px;line-height:1.4;}
+    .task-title.done{text-decoration:line-through;color:var(--muted);}
+    .task-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+    .task-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 2px;transition:color .2s;}
+    .task-del:hover{color:var(--danger);}
+    .recur-pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;background:rgba(96,165,250,.15);color:var(--accent2);margin-left:6px;}
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
-      pointer-events: none;
-      z-index: 0;
-    }
+    /* ALARM */
+    .alarm-clock{text-align:center;padding:20px 0 32px;}
+    .alarm-now{font-family:'Courier New',monospace;font-size:64px;font-weight:300;letter-spacing:-3px;line-height:1;}
+    .alarm-date-str{font-size:13px;color:var(--muted);margin-top:6px;margin-bottom:32px;}
+    .alarm-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+    .alarm-time-big{font-family:'Courier New',monospace;font-size:28px;font-weight:300;letter-spacing:-1px;}
+    .alarm-info{flex:1;}
+    .alarm-label-text{font-size:13px;color:var(--muted);margin-top:2px;}
+    .alarm-add-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
 
-    .container {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 48px;
-    }
+    /* MODAL */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .modal-backdrop.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px 40px;width:100%;max-width:480px;transform:translateY(30px);transition:transform .25s ease;max-height:85vh;overflow-y:auto;}
+    .modal-backdrop.open .modal{transform:translateY(0);}
+    .modal-title{font-size:18px;font-weight:600;margin-bottom:18px;}
+    .modal-close{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;}
+    .form-group{margin-bottom:14px;}
+    .form-label{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;}
+    .modal::-webkit-scrollbar{width:4px;} .modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-    .ring-wrap {
-      position: relative;
-      width: 280px;
-      height: 280px;
-      cursor: pointer;
-    }
-
-    .ring-wrap svg {
-      transform: rotate(-90deg);
-      width: 100%;
-      height: 100%;
-    }
-
-    .ring-track {
-      fill: none;
-      stroke: var(--ring);
-      stroke-width: 3;
-      transition: stroke 0.8s ease;
-    }
-
-    .ring-progress {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 3;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 1s linear, stroke 0.8s ease;
-    }
-
-    .ring-progress.urgent { stroke: var(--danger); }
-
-    .ring-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .time-display {
-      font-family: 'Courier New', monospace;
-      font-size: 56px;
-      font-weight: 300;
-      letter-spacing: -2px;
-      color: var(--fg);
-      line-height: 1;
-      transition: color 0.4s ease;
-    }
-
-    .time-display.urgent { color: var(--danger); }
-
-    .state-label {
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      transition: color 0.8s ease;
-    }
-
-    .mode-badge {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0;
-      transition: opacity 0.6s ease, color 0.8s ease;
-      margin-top: 2px;
-    }
-
-    .mode-badge.visible { opacity: 1; }
-
-    .controls {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      transition: opacity 0.2s, transform 0.15s, color 0.8s ease;
-      color: var(--fg);
-    }
-
-    .btn:hover { opacity: 0.6; }
-    .btn:active { transform: scale(0.92); }
-
-    .btn-primary {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 1.5px solid var(--ring) !important;
-      background: none;
-      transition: border-color 0.8s ease, color 0.8s ease, opacity 0.2s, transform 0.15s;
-    }
-
-    .btn-secondary {
-      width: 40px;
-      height: 40px;
-      color: var(--muted);
-      transition: color 0.8s ease, opacity 0.2s, transform 0.15s;
-    }
-
-    .btn-secondary:hover { color: var(--fg); opacity: 1; }
-
-    .break-prompt {
-      position: absolute;
-      bottom: -36px;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0;
-      transition: opacity 0.5s ease 0.4s, color 0.8s ease;
-      pointer-events: none;
-    }
-
-    .break-prompt.visible { opacity: 1; }
-
-    .done-flash {
-      position: fixed;
-      inset: 0;
-      background: var(--accent);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 10;
-      transition: opacity 0.15s ease;
-    }
-
-    .done-flash.flash { opacity: 0.12; }
+    /* TOAST */
+    .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;z-index:300;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   </style>
 </head>
 <body>
-  <div class="done-flash" id="flash"></div>
+<div class="app">
+  <div class="tab-content">
 
-  <div class="container">
-    <div style="position:relative">
-      <div class="ring-wrap" id="ringWrap">
-        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
-          <circle class="ring-track" cx="140" cy="140" r="126" />
-          <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="126"
-            stroke-dasharray="791.7" stroke-dashoffset="0" />
-        </svg>
-        <div class="ring-center">
-          <div class="time-display" id="timeDisplay">30:00</div>
-          <div class="state-label" id="stateLabel">ready</div>
-          <div class="mode-badge" id="modeBadge">break</div>
+    <!-- TAB 1: TIMER -->
+    <div class="panel active" id="panel-timer">
+      <div class="timer-wrap">
+        <div class="timer-ring-wrap" id="timerRingWrap">
+          <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+            <circle class="ring-track" cx="130" cy="130" r="116"/>
+            <circle class="ring-fill focus" id="timerRing" cx="130" cy="130" r="116" stroke-dasharray="729" stroke-dashoffset="0"/>
+          </svg>
+          <div class="ring-center">
+            <div class="timer-time" id="timerTime">30:00</div>
+            <div class="timer-label" id="timerLabel">ready</div>
+            <div class="timer-badge" id="timerBadge">break</div>
+          </div>
+        </div>
+        <div class="break-hint" id="breakHint">press play for a 5 min break</div>
+        <div class="timer-controls">
+          <button class="t-btn" id="timerReset" aria-label="Reset">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.14"/></svg>
+          </button>
+          <button class="t-btn t-btn-play" id="timerPlay" aria-label="Play">
+            <svg id="tPlayI" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+            <svg id="tPauseI" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          </button>
+          <button class="t-btn" id="timerSound" aria-label="Sound">
+            <svg id="sndOn" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <svg id="sndOff" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          </button>
+        </div>
+        <div class="timer-stats">
+          <div class="stat-card"><div class="stat-val" id="statSessions">0</div><div class="stat-lbl">Sessions</div></div>
+          <div class="stat-card"><div class="stat-val" id="statFocus">0m</div><div class="stat-lbl">Focus</div></div>
+          <div class="stat-card"><div class="stat-val" id="statStreak">0</div><div class="stat-lbl">Goals done</div></div>
         </div>
       </div>
-      <div class="break-prompt" id="breakPrompt">press play for a 5 min break</div>
     </div>
 
-    <div class="controls">
-      <button class="btn btn-secondary" id="resetBtn" aria-label="Reset">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="1 4 1 10 7 10"></polyline>
-          <path d="M3.51 15a9 9 0 1 0 .49-4.14"></path>
-        </svg>
-      </button>
-
-      <button class="btn btn-primary" id="playBtn" aria-label="Start">
-        <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <polygon points="5,3 19,12 5,21"></polygon>
-        </svg>
-        <svg id="pauseIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none">
-          <rect x="6" y="4" width="4" height="16" rx="1"></rect>
-          <rect x="14" y="4" width="4" height="16" rx="1"></rect>
-        </svg>
-      </button>
-
-      <button class="btn btn-secondary" id="soundBtn" aria-label="Sound on">
-        <svg id="soundOnIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-        <svg id="soundOffIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <line x1="23" y1="9" x2="17" y2="15"></line>
-          <line x1="17" y1="9" x2="23" y2="15"></line>
-        </svg>
-      </button>
+    <!-- TAB 2: JOURNAL -->
+    <div class="panel" id="panel-journal">
+      <div class="journal-date-nav">
+        <button class="nav-arrow" id="journalPrev">‹</button>
+        <div class="date-label" id="journalDateLabel"></div>
+        <button class="nav-arrow" id="journalNext">›</button>
+      </div>
+      <div class="card">
+        <div class="card-label">Thoughts</div>
+        <textarea id="jThoughts" placeholder="What's on your mind today?"></textarea>
+      </div>
+      <div class="card">
+        <div class="card-label">Interactions</div>
+        <textarea id="jInteractions" placeholder="Notable conversations or social moments..."></textarea>
+      </div>
+      <div class="card">
+        <div class="card-label">Ratings</div>
+        <div class="rating-row"><span class="rating-name">Productivity</span><div class="stars" data-rating="productivity"></div></div>
+        <div class="rating-row"><span class="rating-name">Fulfillment</span><div class="stars" data-rating="fulfillment"></div></div>
+        <div class="rating-row"><span class="rating-name">Health</span><div class="stars" data-rating="health"></div></div>
+      </div>
+      <div class="card">
+        <div class="toggle-row"><span class="toggle-label">Add a goal?</span><div class="toggle" id="toggleGoal"></div></div>
+        <div class="expandable" id="expandGoal">
+          <div class="expandable-inner">
+            <div class="row" style="margin-bottom:10px">
+              <div class="pill" data-type="goal-type" data-val="long">Long-term</div>
+              <div class="pill selected" data-type="goal-type" data-val="short">Short-term</div>
+            </div>
+            <input type="text" id="jGoalText" placeholder="Describe your goal..." />
+            <button class="btn btn-secondary btn-sm" style="margin-top:8px" id="jAddGoal">Add to Goal Board</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toggle-row"><span class="toggle-label">Add a task?</span><div class="toggle" id="toggleTask"></div></div>
+        <div class="expandable" id="expandTask">
+          <div class="expandable-inner">
+            <div class="row" style="margin-bottom:10px">
+              <div class="pill selected" data-type="task-when" data-val="specific">Specific date</div>
+              <div class="pill" data-type="task-when" data-val="tomorrow">Tomorrow</div>
+            </div>
+            <div id="taskDateRow" style="margin-bottom:10px"><input type="date" id="jTaskDate" /></div>
+            <input type="time" id="jTaskTime" value="08:00" style="margin-bottom:10px" />
+            <input type="text" id="jTaskDesc" placeholder="Task description..." style="margin-bottom:10px" />
+            <div class="row" style="margin-bottom:10px;align-items:center">
+              <span style="font-size:13px;color:var(--muted)">Recurring?</span>
+              <select id="jTaskRecur"><option value="none">No</option><option value="daily">Every day</option><option value="weekdays">Weekdays</option><option value="weekends">Weekends</option><option value="weekly">Weekly</option></select>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="jAddTask">Add Task</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="jSave" style="margin-bottom:16px">Save Entry</button>
     </div>
+
+    <!-- TAB 3: GOALS -->
+    <div class="panel" id="panel-goals">
+      <h2>Goal Board</h2>
+      <p class="subtitle">Track what you're working toward.</p>
+      <div class="goal-tabs">
+        <div class="goal-tab active" data-filter="all">All</div>
+        <div class="goal-tab" data-filter="long">Long-term</div>
+        <div class="goal-tab" data-filter="short">Short-term</div>
+        <div class="goal-tab" data-filter="done">Done</div>
+      </div>
+      <div id="goalList"></div>
+      <button class="btn btn-secondary btn-full" id="addGoalBtn" style="margin-top:4px">+ Add Goal</button>
+    </div>
+
+    <!-- TAB 4: CALENDAR -->
+    <div class="panel" id="panel-calendar">
+      <div class="cal-month-nav">
+        <button class="cal-nav-btn" id="calPrev">‹</button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button class="cal-nav-btn" id="calNext">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="task-list-header">
+        <div class="task-list-date" id="calSelectedLabel"></div>
+        <button class="btn btn-secondary btn-sm" id="addTaskBtn">+ Task</button>
+      </div>
+      <div id="taskList"></div>
+    </div>
+
+    <!-- TAB 5: ALARM -->
+    <div class="panel" id="panel-alarm">
+      <div class="alarm-clock">
+        <div class="alarm-now" id="alarmClock">00:00:00</div>
+        <div class="alarm-date-str" id="alarmDateStr"></div>
+      </div>
+      <div class="alarm-add-form">
+        <div class="card-label" style="margin-bottom:12px">New Alarm</div>
+        <div class="form-group"><label class="form-label">Time</label><input type="time" id="newAlarmTime" value="07:00" /></div>
+        <div class="form-group"><label class="form-label">Label</label><input type="text" id="newAlarmLabel" placeholder="Wake up, morning run..." /></div>
+        <div class="form-group"><label class="form-label">Repeat</label>
+          <select id="newAlarmRepeat"><option value="once">Once</option><option value="daily">Every day</option><option value="weekdays">Weekdays</option><option value="weekends">Weekends</option></select>
+        </div>
+        <button class="btn btn-primary btn-full" id="addAlarmBtn">Set Alarm</button>
+      </div>
+      <div id="alarmList"></div>
+    </div>
+
+  </div><!-- /tab-content -->
+
+  <nav class="nav">
+    <button class="nav-btn active" data-tab="timer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Focus
+    </button>
+    <button class="nav-btn" data-tab="journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Journal
+    </button>
+    <button class="nav-btn" data-tab="goals">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals
+    </button>
+    <button class="nav-btn" data-tab="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar
+    </button>
+    <button class="nav-btn" data-tab="alarm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 14 15"/><line x1="5" y1="3" x2="2" y2="6"/><line x1="22" y1="6" x2="19" y2="3"/></svg>Alarm
+    </button>
+  </nav>
+</div>
+
+<!-- MODAL: Add Goal -->
+<div class="modal-backdrop" id="goalModal">
+  <div class="modal">
+    <button class="modal-close" data-close="goalModal">×</button>
+    <div class="modal-title">Add Goal</div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <div class="row">
+        <div class="pill selected" data-type="modal-goal-type" data-val="long">Long-term</div>
+        <div class="pill" data-type="modal-goal-type" data-val="short">Short-term</div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Goal</label>
+      <textarea id="modalGoalText" placeholder="What do you want to achieve?"></textarea>
+    </div>
+    <button class="btn btn-primary btn-full" id="modalSaveGoal">Add Goal</button>
   </div>
+</div>
 
-  <script>
-    const FOCUS_TOTAL = 30 * 60;
-    const BREAK_TOTAL = 5 * 60;
-    const CIRC = 2 * Math.PI * 126;
+<!-- MODAL: Add Task -->
+<div class="modal-backdrop" id="taskModal">
+  <div class="modal">
+    <button class="modal-close" data-close="taskModal">×</button>
+    <div class="modal-title">Add Task</div>
+    <div class="form-group"><label class="form-label">Description</label><input type="text" id="modalTaskDesc" placeholder="What needs to be done?" /></div>
+    <div class="form-group"><label class="form-label">Date</label><input type="date" id="modalTaskDate" /></div>
+    <div class="form-group"><label class="form-label">Time</label><input type="time" id="modalTaskTime" value="08:00" /></div>
+    <div class="form-group"><label class="form-label">Recurring</label>
+      <select id="modalTaskRecur"><option value="none">No</option><option value="daily">Every day</option><option value="weekdays">Weekdays</option><option value="weekends">Weekends</option><option value="weekly">Weekly</option></select>
+    </div>
+    <button class="btn btn-primary btn-full" id="modalSaveTask">Add Task</button>
+  </div>
+</div>
 
-    let mode = 'focus'; // 'focus' | 'break-prompt' | 'break'
-    let total = FOCUS_TOTAL;
-    let remaining = FOCUS_TOTAL;
-    let running = false;
-    let soundOn = true;
-    let interval = null;
-    let audioCtx = null;
-    let startEpoch = null;
+<!-- ALARM RINGING -->
+<div class="modal-backdrop" id="alarmRinging">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:12px">⏰</div>
+    <div class="modal-title" id="alarmRingingLabel">Wake up!</div>
+    <div style="font-size:32px;font-family:'Courier New',monospace;margin-bottom:24px" id="alarmRingingTime"></div>
+    <button class="btn btn-primary btn-full" id="dismissAlarm">Dismiss</button>
+  </div>
+</div>
 
-    const timeDisplay = document.getElementById('timeDisplay');
-    const stateLabel = document.getElementById('stateLabel');
-    const modeBadge = document.getElementById('modeBadge');
-    const ringProgress = document.getElementById('ringProgress');
-    const playBtn = document.getElementById('playBtn');
-    const playIcon = document.getElementById('playIcon');
-    const pauseIcon = document.getElementById('pauseIcon');
-    const resetBtn = document.getElementById('resetBtn');
-    const soundBtn = document.getElementById('soundBtn');
-    const soundOnIcon = document.getElementById('soundOnIcon');
-    const soundOffIcon = document.getElementById('soundOffIcon');
-    const flash = document.getElementById('flash');
-    const ringWrap = document.getElementById('ringWrap');
-    const breakPrompt = document.getElementById('breakPrompt');
+<div class="toast" id="toast"></div>
 
-    function fmt(s) {
-      const m = Math.floor(s / 60);
-      const sec = s % 60;
-      return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
-    }
+<script>
+const S={get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+document.querySelectorAll('.modal-backdrop').forEach(bd=>bd.addEventListener('click',e=>{if(e.target===bd)closeModal(bd.id);}));
 
-    function updateRing(rem) {
-      const offset = CIRC * (1 - rem / total);
-      ringProgress.style.strokeDashoffset = offset;
-      const urgent = rem <= 60 && rem > 0;
-      ringProgress.classList.toggle('urgent', urgent);
-      timeDisplay.classList.toggle('urgent', urgent);
-    }
+// TABS
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tab=btn.dataset.tab;
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+tab).classList.add('active');
+    if(tab==='journal')initJournal();
+    if(tab==='goals')renderGoals();
+    if(tab==='calendar')renderCalendar();
+    if(tab==='alarm')renderAlarms();
+  });
+});
 
-    function setTheme(isBreak) {
-      document.documentElement.classList.toggle('break', isBreak);
-      modeBadge.classList.toggle('visible', isBreak);
-    }
+// PILLS
+document.addEventListener('click',e=>{
+  const pill=e.target.closest('.pill[data-type]');if(!pill)return;
+  const type=pill.dataset.type;
+  document.querySelectorAll(`.pill[data-type="${type}"]`).forEach(p=>p.classList.remove('selected'));
+  pill.classList.add('selected');
+  if(type==='task-when')document.getElementById('taskDateRow').style.display=pill.dataset.val==='tomorrow'?'none':'block';
+});
 
-    function render() {
-      timeDisplay.textContent = fmt(remaining);
-      updateRing(remaining);
-      breakPrompt.classList.toggle('visible', mode === 'break-prompt');
+// TOGGLES
+function initToggle(tid,eid){
+  document.getElementById(tid).addEventListener('click',()=>{
+    const t=document.getElementById(tid),e=document.getElementById(eid);
+    t.classList.toggle('on');e.classList.toggle('open',t.classList.contains('on'));
+  });
+}
+initToggle('toggleGoal','expandGoal');initToggle('toggleTask','expandTask');
 
-      if (mode === 'break-prompt') {
-        stateLabel.textContent = 'done';
-      } else if (remaining <= 0) {
-        stateLabel.textContent = 'done';
-      } else if (running) {
-        stateLabel.textContent = mode === 'break' ? 'break' : 'focus';
-      } else if (remaining === total) {
-        stateLabel.textContent = 'ready';
-      } else {
-        stateLabel.textContent = 'paused';
-      }
-    }
+// STARS
+const ratings={productivity:0,fulfillment:0,health:0};
+document.querySelectorAll('.stars[data-rating]').forEach(container=>{
+  const key=container.dataset.rating;
+  for(let i=1;i<=5;i++){
+    const s=document.createElement('span');s.className='star';s.textContent='★';s.dataset.val=i;
+    s.addEventListener('click',()=>{ratings[key]=i;container.querySelectorAll('.star').forEach(st=>st.classList.toggle('lit',+st.dataset.val<=i));});
+    container.appendChild(s);
+  }
+});
+function setStars(key,val){ratings[key]=val;document.querySelectorAll(`.stars[data-rating="${key}"] .star`).forEach(st=>st.classList.toggle('lit',+st.dataset.val<=val));}
 
-    function getCtx() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      return audioCtx;
-    }
+// ── TIMER ──
+const FOCUS_T=30*60,BREAK_T=5*60,CIRC=2*Math.PI*116;
+let tMode='focus',tTotal=FOCUS_T,tRem=FOCUS_T,tRun=false,tInt=null,tEpoch=null,tSound=true;
+let tSess=S.get('t_sess')||0,tFocM=S.get('t_foc')||0,tGoalsDone=S.get('t_goals')||0;
+let aCtx=null;
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function tRender(){
+  document.getElementById('timerTime').textContent=fmt(tRem);
+  document.getElementById('timerRing').style.strokeDashoffset=CIRC*(1-tRem/tTotal);
+  const urg=tRem<=60&&tRem>0;
+  document.getElementById('timerRing').className='ring-fill '+(urg?'urgent':tMode==='break'?'break':'focus');
+  document.getElementById('timerTime').classList.toggle('urgent',urg);
+  document.getElementById('breakHint').classList.toggle('show',tMode==='break-prompt');
+  document.getElementById('timerBadge').classList.toggle('show',tMode==='break');
+  const lbl=tMode==='break-prompt'?'done':tRem<=0?'done':tRun?(tMode==='break'?'break':'focus'):tRem===tTotal?'ready':'paused';
+  document.getElementById('timerLabel').textContent=lbl;
+  document.getElementById('statSessions').textContent=tSess;
+  document.getElementById('statFocus').textContent=tFocM+'m';
+  document.getElementById('statStreak').textContent=tGoalsDone;
+}
+function getAC(){if(!aCtx)aCtx=new(window.AudioContext||window.webkitAudioContext)();return aCtx;}
+function beep(f,d,v){if(!tSound)return;try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(v||.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start(c.currentTime);o.stop(c.currentTime+d);}catch(e){}}
+function playDone(){[[523,0],[659,180],[784,360],[1047,600]].forEach(([f,t])=>setTimeout(()=>beep(f,.5,.22),t));}
+function playBDone(){[[880,0],[660,200],[440,450]].forEach(([f,t])=>setTimeout(()=>beep(f,.5,.18),t));}
+function tTick(){
+  tRem=Math.max(0,tTotal-Math.floor((Date.now()-tEpoch)/1000));tRender();
+  if(tRem===0){
+    if(tMode==='focus'){clearInterval(tInt);tRun=false;tMode='break-prompt';tSess++;tFocM+=30;S.set('t_sess',tSess);S.set('t_foc',tFocM);playDone();if('vibrate'in navigator)navigator.vibrate([200,100,200,100,400]);if(Notification.permission==='granted')new Notification('30 min done',{body:'Take a break?'});tShowPlay();tRender();}
+    else if(tMode==='break'){clearInterval(tInt);tRun=false;playBDone();if('vibrate'in navigator)navigator.vibrate([300,100,300]);setTimeout(()=>{tMode='focus';tTotal=FOCUS_T;tRem=FOCUS_T;tShowPlay();tRender();},1500);}
+  } else {document.title=fmt(tRem);}
+}
+function tShowPlay(){document.getElementById('tPlayI').style.display='';document.getElementById('tPauseI').style.display='none';}
+function tShowPause(){document.getElementById('tPlayI').style.display='none';document.getElementById('tPauseI').style.display='';}
+function tStart(){
+  if(tMode==='break-prompt'){tMode='break';tTotal=BREAK_T;tRem=BREAK_T;}
+  if(tRem<=0){tReset();return;}
+  tEpoch=Date.now()-(tTotal-tRem)*1000;tRun=true;tShowPause();tInt=setInterval(tTick,250);beep(440,.12,.15);
+  if(Notification&&Notification.permission==='default')Notification.requestPermission();
+}
+function tPause(){clearInterval(tInt);tRun=false;tShowPlay();beep(330,.1,.1);tRender();}
+function tReset(){clearInterval(tInt);tRun=false;tMode='focus';tTotal=FOCUS_T;tRem=FOCUS_T;tShowPlay();document.title='Day';tRender();}
+document.getElementById('timerPlay').addEventListener('click',()=>{if(tRun)tPause();else tStart();});
+document.getElementById('timerRingWrap').addEventListener('click',e=>{if(!e.target.closest('#timerPlay')){if(tRun)tPause();else tStart();}});
+document.getElementById('timerReset').addEventListener('click',tReset);
+document.getElementById('timerSound').addEventListener('click',()=>{tSound=!tSound;document.getElementById('sndOn').style.display=tSound?'':'none';document.getElementById('sndOff').style.display=tSound?'none':'';});
+tRender();
 
-    function beep(freq, dur, vol) {
-      if (!soundOn) return;
-      try {
-        const ctx = getCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(vol || 0.25, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + dur);
-      } catch(e) {}
-    }
+// ── JOURNAL ──
+let jDate=new Date();jDate.setHours(0,0,0,0);
+function fmtDate(d){return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
+function dateKey(d){return d.toISOString().split('T')[0];}
+function isToday(d){const t=new Date();t.setHours(0,0,0,0);return d.getTime()===t.getTime();}
+function initJournal(){
+  document.getElementById('journalDateLabel').textContent=(isToday(jDate)?'Today — ':'')+fmtDate(jDate);
+  const e=(S.get('journal')||{})[dateKey(jDate)]||{};
+  document.getElementById('jThoughts').value=e.thoughts||'';
+  document.getElementById('jInteractions').value=e.interactions||'';
+  setStars('productivity',e.productivity||0);setStars('fulfillment',e.fulfillment||0);setStars('health',e.health||0);
+  ['toggleGoal','toggleTask'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  ['expandGoal','expandTask'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  document.getElementById('jGoalText').value='';document.getElementById('jTaskDesc').value='';
+}
+document.getElementById('journalPrev').addEventListener('click',()=>{jDate=new Date(jDate-86400000);initJournal();});
+document.getElementById('journalNext').addEventListener('click',()=>{const n=new Date(jDate-(-86400000)),t=new Date();t.setHours(0,0,0,0);if(n<=t){jDate=n;initJournal();}});
+document.getElementById('jSave').addEventListener('click',()=>{
+  const entries=S.get('journal')||{};
+  entries[dateKey(jDate)]={thoughts:document.getElementById('jThoughts').value,interactions:document.getElementById('jInteractions').value,productivity:ratings.productivity,fulfillment:ratings.fulfillment,health:ratings.health,savedAt:Date.now()};
+  S.set('journal',entries);toast('Entry saved ✓');
+});
+document.getElementById('jAddGoal').addEventListener('click',()=>{
+  const text=document.getElementById('jGoalText').value.trim();if(!text){toast('Enter a goal first');return;}
+  const type=document.querySelector('.pill[data-type="goal-type"].selected')?.dataset.val||'short';
+  addGoal(text,type);document.getElementById('jGoalText').value='';toast('Goal added to board ✓');
+});
+document.getElementById('jAddTask').addEventListener('click',()=>{
+  const desc=document.getElementById('jTaskDesc').value.trim();if(!desc){toast('Enter a description');return;}
+  const when=document.querySelector('.pill[data-type="task-when"].selected')?.dataset.val||'specific';
+  let date;
+  if(when==='tomorrow'){const t=new Date();t.setDate(t.getDate()+1);date=dateKey(t);}
+  else date=document.getElementById('jTaskDate').value||dateKey(new Date());
+  addTask({desc,date,time:document.getElementById('jTaskTime').value||'08:00',recur:document.getElementById('jTaskRecur').value});
+  document.getElementById('jTaskDesc').value='';toast('Task added ✓');
+});
+initJournal();
 
-    function playFocusDone() {
-      [[523,0],[659,180],[784,360],[1047,600]].forEach(([f,t]) => {
-        setTimeout(() => beep(f, 0.5, 0.25), t);
-      });
-    }
+// ── GOALS ──
+let goalFilter='all';
+function addGoal(text,type){const goals=S.get('goals')||[];goals.push({id:Date.now(),text,type,done:false,created:dateKey(new Date())});S.set('goals',goals);}
+function renderGoals(){
+  const goals=S.get('goals')||[];
+  const filtered=goals.filter(g=>goalFilter==='all'?!g.done:goalFilter==='done'?g.done:g.type===goalFilter&&!g.done);
+  const list=document.getElementById('goalList');
+  if(!filtered.length){list.innerHTML='<div class="empty-state"><div class="icon">🎯</div>No goals here yet.</div>';return;}
+  list.innerHTML=filtered.map(g=>`<div class="goal-item"><div class="goal-check ${g.done?'done':''}" onclick="toggleGoalItem(${g.id})">${g.done?'✓':''}</div><div style="flex:1"><div class="goal-text ${g.done?'done':''}">${g.text}</div><div class="goal-date">${g.type==='long'?'Long-term':'Short-term'} · ${g.created}</div></div><button class="btn btn-danger btn-sm" onclick="deleteGoalItem(${g.id})">✕</button></div>`).join('');
+}
+window.toggleGoalItem=function(id){const goals=S.get('goals')||[];const g=goals.find(g=>g.id===id);if(g){g.done=!g.done;if(g.done){tGoalsDone++;S.set('t_goals',tGoalsDone);tRender();}}S.set('goals',goals);renderGoals();};
+window.deleteGoalItem=function(id){S.set('goals',(S.get('goals')||[]).filter(g=>g.id!==id));renderGoals();};
+document.querySelectorAll('.goal-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.goal-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');goalFilter=tab.dataset.filter;renderGoals();});});
+document.getElementById('addGoalBtn').addEventListener('click',()=>{document.getElementById('modalGoalText').value='';openModal('goalModal');});
+document.getElementById('modalSaveGoal').addEventListener('click',()=>{const text=document.getElementById('modalGoalText').value.trim();if(!text){toast('Enter a goal');return;}addGoal(text,document.querySelector('.pill[data-type="modal-goal-type"].selected')?.dataset.val||'long');renderGoals();closeModal('goalModal');toast('Goal added ✓');});
 
-    function playBreakDone() {
-      [[880,0],[660,200],[440,450]].forEach(([f,t]) => {
-        setTimeout(() => beep(f, 0.5, 0.2), t);
-      });
-    }
+// ── TASKS + CALENDAR ──
+let calY=new Date().getFullYear(),calM=new Date().getMonth(),calSel=dateKey(new Date());
+function addTask({desc,date,time,recur}){const tasks=S.get('tasks')||[];tasks.push({id:Date.now(),desc,date,time:time||'08:00',recur:recur||'none',done:false});S.set('tasks',tasks);}
+function getTasksForDate(ds){
+  const tasks=S.get('tasks')||[];const d=new Date(ds+'T00:00:00');const dow=d.getDay();
+  return tasks.filter(t=>{
+    if(t.date===ds)return true;
+    const td=new Date(t.date+'T00:00:00');if(td>d)return false;
+    if(t.recur==='daily')return true;
+    if(t.recur==='weekdays')return dow>=1&&dow<=5;
+    if(t.recur==='weekends')return dow===0||dow===6;
+    if(t.recur==='weekly')return td.getDay()===dow;
+    return false;
+  });
+}
+function renderCalendar(){
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent=months[calM]+' '+calY;
+  const today=dateKey(new Date()),fd=new Date(calY,calM,1).getDay(),dim=new Date(calY,calM+1,0).getDate();
+  let h=['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  for(let i=0;i<fd;i++)h+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ht=getTasksForDate(ds).length>0;
+    h+=`<div class="cal-day${ds===today?' today':''}${ds===calSel?' selected':''}${ht?' has-tasks':''}" data-date="${ds}">${d}</div>`;
+  }
+  const grid=document.getElementById('calGrid');grid.innerHTML=h;
+  grid.querySelectorAll('.cal-day[data-date]').forEach(el=>el.addEventListener('click',()=>{calSel=el.dataset.date;renderCalendar();}));
+  renderTaskList();
+}
+function renderTaskList(){
+  const tasks=getTasksForDate(calSel).sort((a,b)=>a.time.localeCompare(b.time));
+  const d=new Date(calSel+'T00:00:00');
+  document.getElementById('calSelectedLabel').textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const list=document.getElementById('taskList');
+  if(!tasks.length){list.innerHTML='<div class="empty-state" style="padding:20px"><div class="icon">📅</div>No tasks for this day.</div>';return;}
+  list.innerHTML=tasks.map(t=>`<div class="task-item"><div class="task-check ${t.done?'done':''}" onclick="toggleTaskItem(${t.id})">${t.done?'✓':''}</div><div class="task-info"><div class="task-title ${t.done?'done':''}">${t.desc}${t.recur!=='none'?`<span class="recur-pill">${t.recur}</span>`:''}</div><div class="task-meta">${t.time}</div></div><button class="task-del" onclick="deleteTaskItem(${t.id})">✕</button></div>`).join('');
+}
+window.toggleTaskItem=function(id){const tasks=S.get('tasks')||[];const t=tasks.find(t=>t.id===id);if(t)t.done=!t.done;S.set('tasks',tasks);renderTaskList();};
+window.deleteTaskItem=function(id){S.set('tasks',(S.get('tasks')||[]).filter(t=>t.id!==id));renderCalendar();};
+document.getElementById('calPrev').addEventListener('click',()=>{calM--;if(calM<0){calM=11;calY--;}renderCalendar();});
+document.getElementById('calNext').addEventListener('click',()=>{calM++;if(calM>11){calM=0;calY++;}renderCalendar();});
+document.getElementById('addTaskBtn').addEventListener('click',()=>{document.getElementById('modalTaskDate').value=calSel;document.getElementById('modalTaskDesc').value='';document.getElementById('modalTaskTime').value='08:00';document.getElementById('modalTaskRecur').value='none';openModal('taskModal');});
+document.getElementById('modalSaveTask').addEventListener('click',()=>{const desc=document.getElementById('modalTaskDesc').value.trim();if(!desc){toast('Enter a description');return;}addTask({desc,date:document.getElementById('modalTaskDate').value||calSel,time:document.getElementById('modalTaskTime').value||'08:00',recur:document.getElementById('modalTaskRecur').value});renderCalendar();closeModal('taskModal');toast('Task added ✓');});
 
-    function doFlash() {
-      flash.classList.add('flash');
-      setTimeout(() => flash.classList.remove('flash'), 300);
-    }
+// ── ALARM ──
+let alRinging=false,alOsc=null,alACtx=null;
+function fmtClock(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function fmtClockS(d){return fmtClock(d)+':'+String(d.getSeconds()).padStart(2,'0');}
+(function clockTick(){const now=new Date();document.getElementById('alarmClock').textContent=fmtClockS(now);document.getElementById('alarmDateStr').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});setTimeout(clockTick,1000);})();
+function renderAlarms(){
+  const alarms=S.get('alarms')||[];const list=document.getElementById('alarmList');
+  if(!alarms.length){list.innerHTML='<div class="empty-state"><div class="icon">⏰</div>No alarms set.</div>';return;}
+  list.innerHTML=alarms.map(a=>`<div class="alarm-item"><div><div class="alarm-time-big">${a.time}</div><div class="alarm-label-text">${a.label||'Alarm'} · ${a.repeat}</div></div><div class="toggle ${a.on?'on':''}" onclick="toggleAlarmItem(${a.id})" style="margin-left:auto;margin-right:12px"></div><button class="btn btn-danger btn-sm" onclick="deleteAlarmItem(${a.id})">✕</button></div>`).join('');
+}
+window.toggleAlarmItem=function(id){const a=(S.get('alarms')||[]);const al=a.find(x=>x.id===id);if(al)al.on=!al.on;S.set('alarms',a);renderAlarms();};
+window.deleteAlarmItem=function(id){S.set('alarms',(S.get('alarms')||[]).filter(a=>a.id!==id));renderAlarms();};
+document.getElementById('addAlarmBtn').addEventListener('click',()=>{
+  const alarms=S.get('alarms')||[];
+  alarms.push({id:Date.now(),time:document.getElementById('newAlarmTime').value,label:document.getElementById('newAlarmLabel').value,repeat:document.getElementById('newAlarmRepeat').value,on:true,firedDate:null});
+  S.set('alarms',alarms);renderAlarms();document.getElementById('newAlarmLabel').value='';toast('Alarm set ✓');
+});
+function ringAlarm(a){
+  if(alRinging)return;alRinging=true;
+  document.getElementById('alarmRingingLabel').textContent=a.label||'Alarm';
+  document.getElementById('alarmRingingTime').textContent=a.time;
+  openModal('alarmRinging');
+  if('vibrate'in navigator)navigator.vibrate([500,200,500,200,500,200,500]);
+  try{alACtx=new(window.AudioContext||window.webkitAudioContext)();alOsc=alACtx.createOscillator();const g=alACtx.createGain();alOsc.connect(g);g.connect(alACtx.destination);alOsc.type='square';alOsc.frequency.value=880;g.gain.value=0.25;alOsc.start();}catch(e){}
+}
+document.getElementById('dismissAlarm').addEventListener('click',()=>{
+  alRinging=false;try{if(alOsc){alOsc.stop();alOsc=null;}}catch(e){}
+  closeModal('alarmRinging');if('vibrate'in navigator)navigator.vibrate(0);
+  const now=new Date(),alarms=S.get('alarms')||[];
+  alarms.forEach(a=>{if(a.on&&a.time===document.getElementById('alarmRingingTime').textContent){if(a.repeat==='once')a.on=false;a.firedDate=dateKey(now);}});
+  S.set('alarms',alarms);renderAlarms();
+});
+setInterval(()=>{
+  if(alRinging)return;const now=new Date(),hhmm=fmtClock(now),today=dateKey(now),dow=now.getDay();
+  (S.get('alarms')||[]).forEach(a=>{
+    if(!a.on||a.firedDate===today||a.time!==hhmm)return;
+    const ok=a.repeat==='once'||a.repeat==='daily'||(a.repeat==='weekdays'&&dow>=1&&dow<=5)||(a.repeat==='weekends'&&(dow===0||dow===6));
+    if(ok)ringAlarm(a);
+  });
+},10000);
 
-    function showPlay() { playIcon.style.display = ''; pauseIcon.style.display = 'none'; }
-    function showPause() { playIcon.style.display = 'none'; pauseIcon.style.display = ''; }
-
-    function onFocusDone() {
-      clearInterval(interval);
-      running = false;
-      mode = 'break-prompt';
-      showPlay();
-      playFocusDone();
-      doFlash();
-      if ('vibrate' in navigator) navigator.vibrate([200,100,200,100,400]);
-      document.title = '✓ break?';
-      if (Notification.permission === 'granted')
-        new Notification('30 minutes done', { body: 'Take a 5 min break?' });
-      render();
-    }
-
-    function onBreakDone() {
-      clearInterval(interval);
-      running = false;
-      showPlay();
-      playBreakDone();
-      doFlash();
-      if ('vibrate' in navigator) navigator.vibrate([300,100,300]);
-      document.title = '✓ back to work';
-      if (Notification.permission === 'granted')
-        new Notification('Break over', { body: 'Back to focus.' });
-      setTimeout(() => {
-        mode = 'focus';
-        total = FOCUS_TOTAL;
-        remaining = FOCUS_TOTAL;
-        setTheme(false);
-        document.title = '30';
-        render();
-      }, 1500);
-    }
-
-    function tick() {
-      const elapsed = Math.floor((Date.now() - startEpoch) / 1000);
-      remaining = Math.max(0, total - elapsed);
-      render();
-      if (remaining === 0) {
-        if (mode === 'focus') onFocusDone();
-        else if (mode === 'break') onBreakDone();
-      } else {
-        document.title = fmt(remaining);
-      }
-    }
-
-    function start() {
-      if (mode === 'break-prompt') {
-        mode = 'break';
-        total = BREAK_TOTAL;
-        remaining = BREAK_TOTAL;
-        setTheme(true);
-      }
-      if (remaining <= 0) { hardReset(); return; }
-      startEpoch = Date.now() - (total - remaining) * 1000;
-      running = true;
-      showPause();
-      interval = setInterval(tick, 250);
-      beep(440, 0.12, 0.15);
-      if (Notification && Notification.permission === 'default') Notification.requestPermission();
-    }
-
-    function pause() {
-      clearInterval(interval);
-      running = false;
-      showPlay();
-      beep(330, 0.1, 0.1);
-      render();
-    }
-
-    function hardReset() {
-      clearInterval(interval);
-      running = false;
-      mode = 'focus';
-      total = FOCUS_TOTAL;
-      remaining = FOCUS_TOTAL;
-      setTheme(false);
-      showPlay();
-      document.title = '30';
-      render();
-    }
-
-    playBtn.addEventListener('click', () => { if (running) pause(); else start(); });
-    ringWrap.addEventListener('click', (e) => { if (!e.target.closest('#playBtn')) { if (running) pause(); else start(); } });
-    resetBtn.addEventListener('click', hardReset);
-
-    soundBtn.addEventListener('click', () => {
-      soundOn = !soundOn;
-      soundOnIcon.style.display = soundOn ? '' : 'none';
-      soundOffIcon.style.display = soundOn ? 'none' : '';
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') { e.preventDefault(); if (running) pause(); else start(); }
-      if (e.code === 'KeyR') hardReset();
-      if (e.code === 'KeyM') soundBtn.click();
-    });
-
-    async function requestWakeLock() {
-      try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
-    }
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && running) requestWakeLock();
-    });
-
-    render();
-
-    if ('serviceWorker' in navigator)
-      window.addEventListener('load', () => navigator.serviceWorker.register('/focus_app/sw.js', { scope: '/focus/app' }));
-  </script>
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/focus_app/sw.js',{scope:'/focus_app/'}));
+</script>
 </body>
 </html>
