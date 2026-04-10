@@ -483,7 +483,7 @@
     render();
 
     if ('serviceWorker' in navigator)
-      window.addEventListener('load', () => navigator.serviceWorker.register('/focus_app/sw.js'));
+      window.addEventListener('load', () => navigator.serviceWorker.register('/focus_app/sw.js', { scope: '/focus/app' }));
   </script>
 </body>
 </html>

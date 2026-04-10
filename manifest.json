@@ -1,8 +1,9 @@
 {
-  "name": "30 Minute Timer",
-  "short_name": "30",
-  "description": "A single 30-minute focus timer.",
-  "start_url": "/",
+  "name": "Focus_app",
+  "short_name": "Focus",
+  "description": "An integrated lock-in platform",
+  "start_url": "/focus_app/",
+  "scope": "/focus_app/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
