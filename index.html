@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="30" />
+  <link rel="manifest" href="manifest.json" />
+  <title>30</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --fg: #f0ede6;
+      --muted: #4a4845;
+      --accent: #c8b89a;
+      --ring: #3a3835;
+      --danger: #c0503a;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* Subtle grain texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+
+    /* SVG ring */
+    .ring-wrap {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      cursor: pointer;
+    }
+
+    .ring-wrap svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .ring-track {
+      fill: none;
+      stroke: var(--ring);
+      stroke-width: 3;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 3;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+    }
+
+    .ring-progress.urgent {
+      stroke: var(--danger);
+    }
+
+    /* Center content inside ring */
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .time-display {
+      font-family: 'Courier New', monospace;
+      font-size: 56px;
+      font-weight: 300;
+      letter-spacing: -2px;
+      color: var(--fg);
+      line-height: 1;
+      transition: color 0.4s ease;
+    }
+
+    .time-display.urgent {
+      color: var(--danger);
+    }
+
+    .state-label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: opacity 0.2s, transform 0.15s;
+      color: var(--fg);
+    }
+
+    .btn:hover { opacity: 0.6; }
+    .btn:active { transform: scale(0.92); }
+
+    .btn-primary {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ring) !important;
+      background: none;
+    }
+
+    .btn-secondary {
+      width: 40px;
+      height: 40px;
+      color: var(--muted);
+    }
+
+    .btn-secondary:hover { color: var(--fg); opacity: 1; }
+
+    /* Done state */
+    .done-flash {
+      position: fixed;
+      inset: 0;
+      background: var(--accent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+      transition: opacity 0.15s ease;
+    }
+
+    .done-flash.flash { opacity: 0.12; }
+
+    /* Tiny pip dots showing 30-min segments at tick marks */
+    .tick-label {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      fill: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="done-flash" id="flash"></div>
+
+  <div class="container">
+    <div class="ring-wrap" id="ringWrap" title="Click to start/pause">
+      <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="140" cy="140" r="126" />
+        <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="126"
+          stroke-dasharray="791.7" stroke-dashoffset="0" />
+      </svg>
+      <div class="ring-center">
+        <div class="time-display" id="timeDisplay">30:00</div>
+        <div class="state-label" id="stateLabel">ready</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" id="resetBtn" title="Reset" aria-label="Reset">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 .49-4.14"></path>
+        </svg>
+      </button>
+
+      <button class="btn btn-primary" id="playBtn" aria-label="Start">
+        <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5,3 19,12 5,21"></polygon>
+        </svg>
+        <svg id="pauseIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+          <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+          <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+        </svg>
+      </button>
+
+      <button class="btn btn-secondary" id="soundBtn" title="Toggle sound" aria-label="Sound on">
+        <svg id="soundOnIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg id="soundOffIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL = 30 * 60;
+    const CIRCUMFERENCE = 2 * Math.PI * 126;
+
+    let remaining = TOTAL;
+    let running = false;
+    let soundOn = true;
+    let interval = null;
+    let audioCtx = null;
+    let startEpoch = null;
+    let pausedAt = null;
+
+    const timeDisplay = document.getElementById('timeDisplay');
+    const stateLabel = document.getElementById('stateLabel');
+    const ringProgress = document.getElementById('ringProgress');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const resetBtn = document.getElementById('resetBtn');
+    const soundBtn = document.getElementById('soundBtn');
+    const soundOnIcon = document.getElementById('soundOnIcon');
+    const soundOffIcon = document.getElementById('soundOffIcon');
+    const flash = document.getElementById('flash');
+    const ringWrap = document.getElementById('ringWrap');
+
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+
+    function updateRing(rem) {
+      const frac = rem / TOTAL;
+      const offset = CIRCUMFERENCE * (1 - frac);
+      ringProgress.style.strokeDashoffset = offset;
+      const urgent = rem <= 60 && rem > 0;
+      ringProgress.classList.toggle('urgent', urgent);
+      timeDisplay.classList.toggle('urgent', urgent);
+    }
+
+    function render() {
+      timeDisplay.textContent = fmt(remaining);
+      updateRing(remaining);
+      if (remaining <= 0) {
+        stateLabel.textContent = 'done';
+      } else if (running) {
+        stateLabel.textContent = 'focus';
+      } else if (remaining === TOTAL) {
+        stateLabel.textContent = 'ready';
+      } else {
+        stateLabel.textContent = 'paused';
+      }
+    }
+
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function beep(freq, dur, vol = 0.3, type = 'sine') {
+      if (!soundOn) return;
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(vol, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + dur);
+      } catch(e) {}
+    }
+
+    function playDone() {
+      if (!soundOn) return;
+      [0, 0.18, 0.36, 0.6].forEach((t, i) => {
+        setTimeout(() => beep([523, 659, 784, 1047][i], 0.5, 0.25), t * 1000);
+      });
+    }
+
+    function doFlash() {
+      flash.classList.add('flash');
+      setTimeout(() => flash.classList.remove('flash'), 300);
+    }
+
+    function tick() {
+      const now = Date.now();
+      const elapsed = Math.floor((now - startEpoch) / 1000);
+      remaining = Math.max(0, TOTAL - elapsed);
+      render();
+      if (remaining === 0) {
+        clearInterval(interval);
+        running = false;
+        showPlay();
+        playDone();
+        doFlash();
+        if ('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
+        if (document.title !== '✓ done') document.title = '✓ done';
+        // Notification
+        if (Notification.permission === 'granted') {
+          new Notification('30 minutes', { body: 'Time\'s up.', silent: false });
+        }
+      } else {
+        document.title = fmt(remaining);
+      }
+    }
+
+    function showPlay() { playIcon.style.display = ''; pauseIcon.style.display = 'none'; }
+    function showPause() { playIcon.style.display = 'none'; pauseIcon.style.display = ''; }
+
+    function start() {
+      if (remaining <= 0) { reset(); return; }
+      startEpoch = Date.now() - (TOTAL - remaining) * 1000;
+      running = true;
+      showPause();
+      stateLabel.textContent = 'focus';
+      interval = setInterval(tick, 250);
+      beep(440, 0.12, 0.15);
+      // Request notification permission
+      if (Notification && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function pause() {
+      clearInterval(interval);
+      running = false;
+      showPlay();
+      stateLabel.textContent = 'paused';
+      beep(330, 0.1, 0.1);
+    }
+
+    function reset() {
+      clearInterval(interval);
+      running = false;
+      remaining = TOTAL;
+      showPlay();
+      document.title = '30';
+      render();
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (running) pause(); else start();
+    });
+
+    ringWrap.addEventListener('click', (e) => {
+      if (!e.target.closest('#playBtn')) {
+        if (running) pause(); else start();
+      }
+    });
+
+    resetBtn.addEventListener('click', reset);
+
+    soundBtn.addEventListener('click', () => {
+      soundOn = !soundOn;
+      soundOnIcon.style.display = soundOn ? '' : 'none';
+      soundOffIcon.style.display = soundOn ? 'none' : '';
+      soundBtn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') { e.preventDefault(); if (running) pause(); else start(); }
+      if (e.code === 'KeyR') reset();
+      if (e.code === 'KeyM') soundBtn.click();
+    });
+
+    // Wake lock
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+      } catch(e) {}
+    }
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible' && running) await requestWakeLock();
+    });
+
+    render();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
+</body>
+</html>
