@@ -1,5 +1,5 @@
 const CACHE = 'timer-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const ASSETS = ['/focus_app/', '/focus_app/index.html', '/focus_app/manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
