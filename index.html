@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="theme-color" content="#0a0a0a" id="themeColor" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="30" />
@@ -21,9 +21,21 @@
       --danger: #c0503a;
     }
 
+    :root.break {
+      --bg: #f5f0e8;
+      --fg: #2a2724;
+      --muted: #9a9590;
+      --accent: #7a9e8a;
+      --ring: #d8d0c4;
+    }
+
+    html {
+      transition: background 0.8s ease;
+      background: var(--bg);
+    }
+
     html, body {
       height: 100%;
-      background: var(--bg);
       color: var(--fg);
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       user-select: none;
@@ -32,15 +44,15 @@
     }
 
     body {
+      background: var(--bg);
+      transition: background 0.8s ease, color 0.8s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0;
       position: relative;
     }
 
-    /* Subtle grain texture */
     body::before {
       content: '';
       position: fixed;
@@ -60,7 +72,6 @@
       gap: 48px;
     }
 
-    /* SVG ring */
     .ring-wrap {
       position: relative;
       width: 280px;
@@ -78,6 +89,7 @@
       fill: none;
       stroke: var(--ring);
       stroke-width: 3;
+      transition: stroke 0.8s ease;
     }
 
     .ring-progress {
@@ -85,14 +97,11 @@
       stroke: var(--accent);
       stroke-width: 3;
       stroke-linecap: round;
-      transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+      transition: stroke-dashoffset 1s linear, stroke 0.8s ease;
     }
 
-    .ring-progress.urgent {
-      stroke: var(--danger);
-    }
+    .ring-progress.urgent { stroke: var(--danger); }
 
-    /* Center content inside ring */
     .ring-center {
       position: absolute;
       inset: 0;
@@ -113,9 +122,7 @@
       transition: color 0.4s ease;
     }
 
-    .time-display.urgent {
-      color: var(--danger);
-    }
+    .time-display.urgent { color: var(--danger); }
 
     .state-label {
       font-size: 11px;
@@ -123,9 +130,21 @@
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--muted);
+      transition: color 0.8s ease;
     }
 
-    /* Controls */
+    .mode-badge {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.6s ease, color 0.8s ease;
+      margin-top: 2px;
+    }
+
+    .mode-badge.visible { opacity: 1; }
+
     .controls {
       display: flex;
       gap: 20px;
@@ -140,7 +159,7 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      transition: opacity 0.2s, transform 0.15s;
+      transition: opacity 0.2s, transform 0.15s, color 0.8s ease;
       color: var(--fg);
     }
 
@@ -153,17 +172,35 @@
       border-radius: 50%;
       border: 1.5px solid var(--ring) !important;
       background: none;
+      transition: border-color 0.8s ease, color 0.8s ease, opacity 0.2s, transform 0.15s;
     }
 
     .btn-secondary {
       width: 40px;
       height: 40px;
       color: var(--muted);
+      transition: color 0.8s ease, opacity 0.2s, transform 0.15s;
     }
 
     .btn-secondary:hover { color: var(--fg); opacity: 1; }
 
-    /* Done state */
+    .break-prompt {
+      position: absolute;
+      bottom: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.5s ease 0.4s, color 0.8s ease;
+      pointer-events: none;
+    }
+
+    .break-prompt.visible { opacity: 1; }
+
     .done-flash {
       position: fixed;
       inset: 0;
@@ -175,33 +212,30 @@
     }
 
     .done-flash.flash { opacity: 0.12; }
-
-    /* Tiny pip dots showing 30-min segments at tick marks */
-    .tick-label {
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      fill: var(--muted);
-    }
   </style>
 </head>
 <body>
   <div class="done-flash" id="flash"></div>
 
   <div class="container">
-    <div class="ring-wrap" id="ringWrap" title="Click to start/pause">
-      <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
-        <circle class="ring-track" cx="140" cy="140" r="126" />
-        <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="126"
-          stroke-dasharray="791.7" stroke-dashoffset="0" />
-      </svg>
-      <div class="ring-center">
-        <div class="time-display" id="timeDisplay">30:00</div>
-        <div class="state-label" id="stateLabel">ready</div>
+    <div style="position:relative">
+      <div class="ring-wrap" id="ringWrap">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <circle class="ring-track" cx="140" cy="140" r="126" />
+          <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="126"
+            stroke-dasharray="791.7" stroke-dashoffset="0" />
+        </svg>
+        <div class="ring-center">
+          <div class="time-display" id="timeDisplay">30:00</div>
+          <div class="state-label" id="stateLabel">ready</div>
+          <div class="mode-badge" id="modeBadge">break</div>
+        </div>
       </div>
+      <div class="break-prompt" id="breakPrompt">press play for a 5 min break</div>
     </div>
 
     <div class="controls">
-      <button class="btn btn-secondary" id="resetBtn" title="Reset" aria-label="Reset">
+      <button class="btn btn-secondary" id="resetBtn" aria-label="Reset">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="1 4 1 10 7 10"></polyline>
           <path d="M3.51 15a9 9 0 1 0 .49-4.14"></path>
@@ -218,7 +252,7 @@
         </svg>
       </button>
 
-      <button class="btn btn-secondary" id="soundBtn" title="Toggle sound" aria-label="Sound on">
+      <button class="btn btn-secondary" id="soundBtn" aria-label="Sound on">
         <svg id="soundOnIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
@@ -234,19 +268,22 @@
   </div>
 
   <script>
-    const TOTAL = 30 * 60;
-    const CIRCUMFERENCE = 2 * Math.PI * 126;
+    const FOCUS_TOTAL = 30 * 60;
+    const BREAK_TOTAL = 5 * 60;
+    const CIRC = 2 * Math.PI * 126;
 
-    let remaining = TOTAL;
+    let mode = 'focus'; // 'focus' | 'break-prompt' | 'break'
+    let total = FOCUS_TOTAL;
+    let remaining = FOCUS_TOTAL;
     let running = false;
     let soundOn = true;
     let interval = null;
     let audioCtx = null;
     let startEpoch = null;
-    let pausedAt = null;
 
     const timeDisplay = document.getElementById('timeDisplay');
     const stateLabel = document.getElementById('stateLabel');
+    const modeBadge = document.getElementById('modeBadge');
     const ringProgress = document.getElementById('ringProgress');
     const playBtn = document.getElementById('playBtn');
     const playIcon = document.getElementById('playIcon');
@@ -257,62 +294,75 @@
     const soundOffIcon = document.getElementById('soundOffIcon');
     const flash = document.getElementById('flash');
     const ringWrap = document.getElementById('ringWrap');
+    const breakPrompt = document.getElementById('breakPrompt');
 
     function fmt(s) {
       const m = Math.floor(s / 60);
       const sec = s % 60;
-      return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+      return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
     }
 
     function updateRing(rem) {
-      const frac = rem / TOTAL;
-      const offset = CIRCUMFERENCE * (1 - frac);
+      const offset = CIRC * (1 - rem / total);
       ringProgress.style.strokeDashoffset = offset;
       const urgent = rem <= 60 && rem > 0;
       ringProgress.classList.toggle('urgent', urgent);
       timeDisplay.classList.toggle('urgent', urgent);
     }
 
+    function setTheme(isBreak) {
+      document.documentElement.classList.toggle('break', isBreak);
+      modeBadge.classList.toggle('visible', isBreak);
+    }
+
     function render() {
       timeDisplay.textContent = fmt(remaining);
       updateRing(remaining);
-      if (remaining <= 0) {
+      breakPrompt.classList.toggle('visible', mode === 'break-prompt');
+
+      if (mode === 'break-prompt') {
+        stateLabel.textContent = 'done';
+      } else if (remaining <= 0) {
         stateLabel.textContent = 'done';
       } else if (running) {
-        stateLabel.textContent = 'focus';
-      } else if (remaining === TOTAL) {
+        stateLabel.textContent = mode === 'break' ? 'break' : 'focus';
+      } else if (remaining === total) {
         stateLabel.textContent = 'ready';
       } else {
         stateLabel.textContent = 'paused';
       }
     }
 
-    function getAudioCtx() {
+    function getCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       return audioCtx;
     }
 
-    function beep(freq, dur, vol = 0.3, type = 'sine') {
+    function beep(freq, dur, vol) {
       if (!soundOn) return;
       try {
-        const ctx = getAudioCtx();
+        const ctx = getCtx();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.type = type;
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(vol, ctx.currentTime);
+        gain.gain.setValueAtTime(vol || 0.25, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + dur);
       } catch(e) {}
     }
 
-    function playDone() {
-      if (!soundOn) return;
-      [0, 0.18, 0.36, 0.6].forEach((t, i) => {
-        setTimeout(() => beep([523, 659, 784, 1047][i], 0.5, 0.25), t * 1000);
+    function playFocusDone() {
+      [[523,0],[659,180],[784,360],[1047,600]].forEach(([f,t]) => {
+        setTimeout(() => beep(f, 0.5, 0.25), t);
+      });
+    }
+
+    function playBreakDone() {
+      [[880,0],[660,200],[440,450]].forEach(([f,t]) => {
+        setTimeout(() => beep(f, 0.5, 0.2), t);
       });
     }
 
@@ -321,104 +371,118 @@
       setTimeout(() => flash.classList.remove('flash'), 300);
     }
 
+    function showPlay() { playIcon.style.display = ''; pauseIcon.style.display = 'none'; }
+    function showPause() { playIcon.style.display = 'none'; pauseIcon.style.display = ''; }
+
+    function onFocusDone() {
+      clearInterval(interval);
+      running = false;
+      mode = 'break-prompt';
+      showPlay();
+      playFocusDone();
+      doFlash();
+      if ('vibrate' in navigator) navigator.vibrate([200,100,200,100,400]);
+      document.title = '✓ break?';
+      if (Notification.permission === 'granted')
+        new Notification('30 minutes done', { body: 'Take a 5 min break?' });
+      render();
+    }
+
+    function onBreakDone() {
+      clearInterval(interval);
+      running = false;
+      showPlay();
+      playBreakDone();
+      doFlash();
+      if ('vibrate' in navigator) navigator.vibrate([300,100,300]);
+      document.title = '✓ back to work';
+      if (Notification.permission === 'granted')
+        new Notification('Break over', { body: 'Back to focus.' });
+      setTimeout(() => {
+        mode = 'focus';
+        total = FOCUS_TOTAL;
+        remaining = FOCUS_TOTAL;
+        setTheme(false);
+        document.title = '30';
+        render();
+      }, 1500);
+    }
+
     function tick() {
-      const now = Date.now();
-      const elapsed = Math.floor((now - startEpoch) / 1000);
-      remaining = Math.max(0, TOTAL - elapsed);
+      const elapsed = Math.floor((Date.now() - startEpoch) / 1000);
+      remaining = Math.max(0, total - elapsed);
       render();
       if (remaining === 0) {
-        clearInterval(interval);
-        running = false;
-        showPlay();
-        playDone();
-        doFlash();
-        if ('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
-        if (document.title !== '✓ done') document.title = '✓ done';
-        // Notification
-        if (Notification.permission === 'granted') {
-          new Notification('30 minutes', { body: 'Time\'s up.', silent: false });
-        }
+        if (mode === 'focus') onFocusDone();
+        else if (mode === 'break') onBreakDone();
       } else {
         document.title = fmt(remaining);
       }
     }
 
-    function showPlay() { playIcon.style.display = ''; pauseIcon.style.display = 'none'; }
-    function showPause() { playIcon.style.display = 'none'; pauseIcon.style.display = ''; }
-
     function start() {
-      if (remaining <= 0) { reset(); return; }
-      startEpoch = Date.now() - (TOTAL - remaining) * 1000;
+      if (mode === 'break-prompt') {
+        mode = 'break';
+        total = BREAK_TOTAL;
+        remaining = BREAK_TOTAL;
+        setTheme(true);
+      }
+      if (remaining <= 0) { hardReset(); return; }
+      startEpoch = Date.now() - (total - remaining) * 1000;
       running = true;
       showPause();
-      stateLabel.textContent = 'focus';
       interval = setInterval(tick, 250);
       beep(440, 0.12, 0.15);
-      // Request notification permission
-      if (Notification && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
+      if (Notification && Notification.permission === 'default') Notification.requestPermission();
     }
 
     function pause() {
       clearInterval(interval);
       running = false;
       showPlay();
-      stateLabel.textContent = 'paused';
       beep(330, 0.1, 0.1);
+      render();
     }
 
-    function reset() {
+    function hardReset() {
       clearInterval(interval);
       running = false;
-      remaining = TOTAL;
+      mode = 'focus';
+      total = FOCUS_TOTAL;
+      remaining = FOCUS_TOTAL;
+      setTheme(false);
       showPlay();
       document.title = '30';
       render();
     }
 
-    playBtn.addEventListener('click', () => {
-      if (running) pause(); else start();
-    });
-
-    ringWrap.addEventListener('click', (e) => {
-      if (!e.target.closest('#playBtn')) {
-        if (running) pause(); else start();
-      }
-    });
-
-    resetBtn.addEventListener('click', reset);
+    playBtn.addEventListener('click', () => { if (running) pause(); else start(); });
+    ringWrap.addEventListener('click', (e) => { if (!e.target.closest('#playBtn')) { if (running) pause(); else start(); } });
+    resetBtn.addEventListener('click', hardReset);
 
     soundBtn.addEventListener('click', () => {
       soundOn = !soundOn;
       soundOnIcon.style.display = soundOn ? '' : 'none';
       soundOffIcon.style.display = soundOn ? 'none' : '';
-      soundBtn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
     });
 
-    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space') { e.preventDefault(); if (running) pause(); else start(); }
-      if (e.code === 'KeyR') reset();
+      if (e.code === 'KeyR') hardReset();
       if (e.code === 'KeyM') soundBtn.click();
     });
 
-    // Wake lock
-    let wakeLock = null;
     async function requestWakeLock() {
-      try {
-        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-      } catch(e) {}
+      try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
     }
-    document.addEventListener('visibilitychange', async () => {
-      if (document.visibilityState === 'visible' && running) await requestWakeLock();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && running) requestWakeLock();
     });
 
     render();
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
-    }
+    if ('serviceWorker' in navigator)
+      window.addEventListener('load', () => navigator.serviceWorker.register('/focus_app/sw.js'));
   </script>
 </body>
 </html>
