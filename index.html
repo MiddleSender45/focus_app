@@ -152,6 +152,52 @@
     /* TOAST */
     .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;z-index:300;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    /* AI CHAT */
+    #panel-ai{display:none;flex-direction:column;height:calc(100vh - 60px);padding:0;}
+    #panel-ai.active{display:flex;}
+    .ai-sidebar{display:flex;align-items:center;gap:8px;padding:14px 20px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+    .ai-chat-select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--fg);font-size:13px;font-family:inherit;outline:none;}
+    .ai-new-btn{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);padding:8px 11px;cursor:pointer;font-size:16px;transition:color .2s,border-color .2s;flex-shrink:0;}
+    .ai-new-btn:hover{color:var(--accent);border-color:var(--accent);}
+    .ai-del-btn{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);padding:8px 10px;cursor:pointer;font-size:14px;transition:color .2s;flex-shrink:0;}
+    .ai-del-btn:hover{color:var(--danger);}
+    .ai-status{padding:4px 20px 4px;font-size:11px;color:var(--muted);flex-shrink:0;display:flex;align-items:center;gap:6px;}
+    .ai-status-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .3s;}
+    .ai-status-dot.online{background:var(--accent3);}
+    .ai-status-dot.error{background:var(--danger);}
+    .ai-model-row{padding:4px 20px 8px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid var(--border);}
+    .ai-model-select{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;color:var(--fg);font-size:12px;font-family:inherit;outline:none;}
+    .ai-ctx-btn{font-size:11px;padding:6px 10px;border-radius:var(--radius-sm);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);color:var(--accent);cursor:pointer;white-space:nowrap;transition:background .15s;font-family:inherit;}
+    .ai-ctx-btn:hover{background:rgba(167,139,250,.2);}
+    .ai-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+    .ai-messages::-webkit-scrollbar{width:4px;}
+    .ai-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    .msg{display:flex;flex-direction:column;gap:4px;max-width:88%;}
+    .msg.user{align-self:flex-end;align-items:flex-end;}
+    .msg.assistant{align-self:flex-start;align-items:flex-start;}
+    .msg-bubble{padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.6;word-break:break-word;}
+    .msg.user .msg-bubble{background:var(--accent);color:#0f0f1a;border-bottom-right-radius:4px;}
+    .msg.assistant .msg-bubble{background:var(--surface2);color:var(--fg);border-bottom-left-radius:4px;border:1px solid var(--border);}
+    .msg-bubble pre{background:rgba(0,0,0,.35);border-radius:6px;padding:10px;overflow-x:auto;margin:6px 0;}
+    .msg-bubble pre code{font-family:'Courier New',monospace;font-size:12px;}
+    .msg-bubble code:not(pre code){font-family:'Courier New',monospace;font-size:13px;background:rgba(0,0,0,.2);padding:1px 5px;border-radius:4px;}
+    .msg-bubble p{margin-bottom:6px;} .msg-bubble p:last-child{margin-bottom:0;}
+    .msg-bubble ul,.msg-bubble ol{padding-left:18px;margin:4px 0;}
+    .msg-time{font-size:10px;color:var(--muted);padding:0 4px;}
+    .msg-thinking{display:flex;gap:5px;padding:12px 15px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;border-bottom-left-radius:4px;align-self:flex-start;}
+    .msg-thinking span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+    .msg-thinking span:nth-child(2){animation-delay:.2s;}
+    .msg-thinking span:nth-child(3){animation-delay:.4s;}
+    @keyframes blink{0%,80%,100%{opacity:.3;}40%{opacity:1;}}
+    .ai-input-wrap{padding:10px 20px 14px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px;align-items:flex-end;}
+    .ai-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;color:var(--fg);font-size:14px;font-family:inherit;outline:none;resize:none;max-height:120px;line-height:1.5;transition:border-color .2s;}
+    .ai-input:focus{border-color:var(--accent);}
+    .ai-send{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s,transform .15s;}
+    .ai-send:hover{opacity:.85;} .ai-send:active{transform:scale(.93);}
+    .ai-send:disabled{opacity:.35;cursor:default;}
+    .ai-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:8px;color:var(--muted);padding:40px 20px;text-align:center;}
+    .ai-empty-icon{font-size:40px;margin-bottom:4px;}
   </style>
 </head>
 <body>
@@ -297,6 +343,29 @@
       <div id="alarmList"></div>
     </div>
 
+    <!-- TAB 6: AI -->
+    <div class="panel" id="panel-ai">
+      <div class="ai-sidebar">
+        <select class="ai-chat-select" id="aiChatSelect"></select>
+        <button class="ai-new-btn" id="aiNewChat" title="New chat">+</button>
+        <button class="ai-del-btn" id="aiDelChat" title="Delete chat">🗑</button>
+      </div>
+      <div class="ai-status"><div class="ai-status-dot" id="aiDot"></div><span id="aiStatusText">Checking Ollama...</span></div>
+      <div class="ai-model-row">
+        <select class="ai-model-select" id="aiModelSelect"><option value="gemma3:4b">gemma3:4b</option></select>
+        <button class="ai-ctx-btn" id="aiCtxBtn" title="Inject your goals, journal and tasks as context">⚡ Inject context</button>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-empty"><div class="ai-empty-icon">✦</div><span>Start a conversation</span></div>
+      </div>
+      <div class="ai-input-wrap">
+        <textarea class="ai-input" id="aiInput" placeholder="Ask anything..." rows="1"></textarea>
+        <button class="ai-send" id="aiSend" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f0f1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
   </div><!-- /tab-content -->
 
   <nav class="nav">
@@ -314,6 +383,9 @@
     </button>
     <button class="nav-btn" data-tab="alarm">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 14 15"/><line x1="5" y1="3" x2="2" y2="6"/><line x1="22" y1="6" x2="19" y2="3"/></svg>Alarm
+    </button>
+    <button class="nav-btn" data-tab="ai">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 3.5-2 6-5 7v2H10v-2c-3-1-5-3.5-5-7a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>AI
     </button>
   </nav>
 </div>
@@ -385,6 +457,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(tab==='goals')renderGoals();
     if(tab==='calendar')renderCalendar();
     if(tab==='alarm')renderAlarms();
+    if(tab==='ai')initAI();
   });
 });
 
@@ -605,7 +678,202 @@ setInterval(()=>{
   });
 },10000);
 
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/focus_app/sw.js',{scope:'/focus_app/'}));
+
+// ── AI CHAT ──
+const OLLAMA = 'http://localhost:11434';
+let aiChats = S.get('ai_chats') || {};
+let aiActiveChatId = S.get('ai_active') || null;
+let aiStreaming = false;
+
+function aiEnsureChat() {
+  if (!Object.keys(aiChats).length) {
+    const id = 'chat_' + Date.now();
+    aiChats[id] = { name: 'Chat 1', messages: [], created: Date.now() };
+    aiActiveChatId = id;
+  } else if (!aiActiveChatId || !aiChats[aiActiveChatId]) {
+    aiActiveChatId = Object.keys(aiChats)[0];
+  }
+  S.set('ai_chats', aiChats); S.set('ai_active', aiActiveChatId);
+}
+function aiSaveChats() { S.set('ai_chats', aiChats); S.set('ai_active', aiActiveChatId); }
+
+function aiPopulateSelect() {
+  const sel = document.getElementById('aiChatSelect');
+  sel.innerHTML = '';
+  Object.entries(aiChats).sort((a,b) => a[1].created - b[1].created).forEach(([id, chat]) => {
+    const opt = document.createElement('option');
+    opt.value = id; opt.textContent = chat.name;
+    if (id === aiActiveChatId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function aiPopulateModels() {
+  fetch(OLLAMA + '/api/tags').then(r => r.json()).then(data => {
+    const sel = document.getElementById('aiModelSelect');
+    const current = sel.value;
+    sel.innerHTML = '';
+    (data.models || []).forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.name; opt.textContent = m.name;
+      if (m.name === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    if (!sel.value && data.models && data.models.length) sel.value = data.models[0].name;
+  }).catch(() => {});
+}
+
+function aiSetStatus(state) {
+  const dot = document.getElementById('aiDot');
+  const txt = document.getElementById('aiStatusText');
+  const send = document.getElementById('aiSend');
+  if (state === 'online') {
+    dot.className = 'ai-status-dot online'; txt.textContent = 'Ollama connected';
+    if (!aiStreaming) send.disabled = false;
+  } else {
+    dot.className = 'ai-status-dot error';
+    txt.textContent = 'Cannot reach Ollama — is it running?'; send.disabled = true;
+  }
+}
+
+function aiCheckOllama() {
+  fetch(OLLAMA + '/api/tags').then(() => { aiSetStatus('online'); aiPopulateModels(); }).catch(() => aiSetStatus('error'));
+}
+
+function buildSystemPrompt() {
+  const today = dateKey(new Date());
+  const journal = S.get('journal') || {};
+  const goals = S.get('goals') || [];
+  let sys = "You are a personal assistant embedded in the user's daily productivity app called Day. You have full context of their goals, journal, and tasks. Be concise, thoughtful, and personal. Today is " + today + ".\n\n";
+  const recentJournal = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const k = dateKey(d); const e = journal[k];
+    if (e && (e.thoughts || e.interactions)) recentJournal.push(k + ": thoughts=\"" + (e.thoughts||'') + "\" interactions=\"" + (e.interactions||'') + "\" ratings: productivity=" + (e.productivity||0) + " fulfillment=" + (e.fulfillment||0) + " health=" + (e.health||0));
+  }
+  if (recentJournal.length) sys += "## Recent Journal\n" + recentJournal.join("\n") + "\n\n";
+  const activeGoals = goals.filter(g => !g.done);
+  if (activeGoals.length) sys += "## Active Goals\n" + activeGoals.map(g => "- [" + g.type + "] " + g.text).join("\n") + "\n\n";
+  const upcoming = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() + i);
+    const ds = dateKey(d);
+    getTasksForDate(ds).filter(t => !t.done).forEach(t => upcoming.push(ds + " " + t.time + " — " + t.desc));
+  }
+  if (upcoming.length) sys += "## Upcoming Tasks\n" + upcoming.join("\n") + "\n";
+  return sys;
+}
+
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderMd(text) {
+  let h = escHtml(text);
+  h = h.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+  h = h.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  h = h.replace(/^#{1,3} (.+)$/gm, '<strong>$1</strong>');
+  h = h.replace(/\n/g, '<br>');
+  return h;
+}
+
+function aiRenderMessages() {
+  const chat = aiChats[aiActiveChatId];
+  const container = document.getElementById('aiMessages');
+  if (!chat || !chat.messages.length) {
+    container.innerHTML = '<div class="ai-empty"><div class="ai-empty-icon">\u2736</div><span>Start a conversation</span></div>';
+    return;
+  }
+  container.innerHTML = chat.messages.map(m => {
+    const time = m.ts ? new Date(m.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+    const content = m.role === 'user' ? escHtml(m.content) : renderMd(m.content);
+    return '<div class="msg ' + m.role + '"><div class="msg-bubble">' + content + '</div>' + (time ? '<div class="msg-time">' + time + '</div>' : '') + '</div>';
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function aiAddThinking() {
+  const el = document.createElement('div');
+  el.className = 'msg-thinking'; el.id = 'aiThinking';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  document.getElementById('aiMessages').appendChild(el);
+  document.getElementById('aiMessages').scrollTop = 99999;
+}
+function aiRemoveThinking() { const el = document.getElementById('aiThinking'); if(el) el.remove(); }
+
+async function aiSendMessage() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text || aiStreaming) return;
+  const chat = aiChats[aiActiveChatId];
+  const model = document.getElementById('aiModelSelect').value || 'gemma3:4b';
+  chat.messages.push({ role: 'user', content: text, ts: Date.now() });
+  input.value = ''; input.style.height = 'auto';
+  if (chat.messages.filter(m => m.role === 'user').length === 1) {
+    chat.name = text.slice(0, 32) + (text.length > 32 ? '\u2026' : '');
+    aiPopulateSelect();
+  }
+  aiSaveChats(); aiRenderMessages();
+  aiStreaming = true; document.getElementById('aiSend').disabled = true; aiAddThinking();
+  const messages = [{ role: 'system', content: buildSystemPrompt() }, ...chat.messages.map(m => ({ role: m.role, content: m.content }))];
+  try {
+    const res = await fetch(OLLAMA + '/api/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages, stream: true })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    aiRemoveThinking();
+    let assistantText = '';
+    const msgContainer = document.getElementById('aiMessages');
+    const msgEl = document.createElement('div'); msgEl.className = 'msg assistant';
+    const bubble = document.createElement('div'); bubble.className = 'msg-bubble';
+    msgEl.appendChild(bubble); msgContainer.appendChild(msgEl);
+    const reader = res.body.getReader(); const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read(); if (done) break;
+      decoder.decode(value).split('\n').filter(Boolean).forEach(line => {
+        try { const json = JSON.parse(line); if (json.message && json.message.content) { assistantText += json.message.content; bubble.innerHTML = renderMd(assistantText); msgContainer.scrollTop = msgContainer.scrollHeight; } } catch(e) {}
+      });
+    }
+    chat.messages.push({ role: 'assistant', content: assistantText, ts: Date.now() });
+    aiSaveChats(); aiRenderMessages();
+  } catch(err) {
+    aiRemoveThinking();
+    aiChats[aiActiveChatId].messages.push({ role: 'assistant', content: '\u26a0 Could not reach Ollama. Make sure it\'s running: ollama serve', ts: Date.now() });
+    aiSaveChats(); aiRenderMessages(); aiSetStatus('error');
+  }
+  aiStreaming = false; document.getElementById('aiSend').disabled = false; document.getElementById('aiInput').focus();
+}
+
+function initAI() { aiEnsureChat(); aiPopulateSelect(); aiCheckOllama(); aiRenderMessages(); }
+
+document.getElementById('aiChatSelect').addEventListener('change', e => { aiActiveChatId = e.target.value; aiSaveChats(); aiRenderMessages(); });
+document.getElementById('aiNewChat').addEventListener('click', () => {
+  const id = 'chat_' + Date.now();
+  aiChats[id] = { name: 'Chat ' + (Object.keys(aiChats).length + 1), messages: [], created: Date.now() };
+  aiActiveChatId = id; aiSaveChats(); aiPopulateSelect(); aiRenderMessages();
+});
+document.getElementById('aiDelChat').addEventListener('click', () => {
+  if (Object.keys(aiChats).length <= 1) { toast('Cannot delete last chat'); return; }
+  delete aiChats[aiActiveChatId];
+  aiActiveChatId = Object.keys(aiChats)[0];
+  aiSaveChats(); aiPopulateSelect(); aiRenderMessages();
+});
+document.getElementById('aiCtxBtn').addEventListener('click', () => {
+  const container = document.getElementById('aiMessages');
+  const peek = document.createElement('div');
+  peek.style.cssText = 'font-size:11px;color:var(--muted);padding:6px 12px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.15);border-radius:8px;align-self:center;text-align:center;margin:4px 0;';
+  peek.textContent = '\u26a1 Context refreshed — AI knows your latest goals, journal & tasks';
+  container.appendChild(peek); container.scrollTop = 99999;
+  setTimeout(() => peek.remove(), 3500);
+  toast('Context refreshed \u2713');
+});
+document.getElementById('aiSend').addEventListener('click', aiSendMessage);
+document.getElementById('aiInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aiSendMessage(); } });
+document.getElementById('aiInput').addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
+setInterval(aiCheckOllama, 30000);
+
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js', {scope: '/'}));
 </script>
 </body>
 </html>
