@@ -1,12 +1,12 @@
 {
-  "name": "Day — Focus & Journal",
-  "short_name": "Day",
-  "description": "Focus timer, journal, goals, calendar, and alarm in one app.",
+  "name": "Wispora",
+  "short_name": "Wispora",
+  "description": "Focus, journal, goals, calendar, alarm and AI — your daily OS.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0f0f1a",
-  "theme_color": "#0f0f1a",
+  "background_color": "#0d0b1e",
+  "theme_color": "#0d0b1e",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
