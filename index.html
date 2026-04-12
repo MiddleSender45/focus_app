@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -83,8 +83,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:var(--fon
 /* CALENDAR */
 .cal-card{flex:1;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;position:relative;overflow:hidden;min-height:0;}
 .cal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(180,142,250,0.2),transparent);}
-.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-shrink:0;}
-.cal-month-label{font-size:13px;font-weight:700;}
+.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-shrink:0;}
+.cal-month-label{font-size:22px;font-weight:800;}
 .cal-nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:1px 5px;transition:color .2s;}
 .cal-nav-btn:hover{color:var(--fg);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1;align-content:start;}
@@ -110,7 +110,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:var(--fon
 /* GOALS */
 .goal-section-header{display:flex;align-items:center;justify-content:space-between;padding:3px 0 2px;cursor:pointer;user-select:none;}
 .goal-section-title{font-size:10px;font-weight:700;color:var(--fg2);}
-.goal-section-arrow{font-size:10px;color:var(--muted);transition:transform .2s;}
+.goal-section-arrow{font-size:16px;color:var(--muted);transition:transform .2s;}
 .goal-section-arrow.open{transform:rotate(90deg);}
 .goal-section-body{overflow:hidden;max-height:0;transition:max-height .3s ease;}
 .goal-section-body.open{max-height:500px;}
@@ -349,15 +349,15 @@ select option{background:var(--surface2);}
     </div>
     <div class="home-goals-scroll">
       <div class="goal-sub-card">
-        <div class="goal-section-header" id="gsLongHdr"><span class="goal-section-title">🎯 Long-term</span><span class="goal-section-arrow open" id="gsLongArr">›</span></div>
+        <div class="goal-section-header" id="gsLongHdr"><span class="goal-section-title">Long-term</span><span class="goal-section-arrow open" id="gsLongArr">›</span></div>
         <div class="goal-section-body open" id="gsLongBody"><div id="goalListLong"></div></div>
       </div>
       <div class="goal-sub-card">
-        <div class="goal-section-header" id="gsShortHdr"><span class="goal-section-title">⚡ Short-term</span><span class="goal-section-arrow open" id="gsShortArr">›</span></div>
+        <div class="goal-section-header" id="gsShortHdr"><span class="goal-section-title">Short-term</span><span class="goal-section-arrow open" id="gsShortArr">›</span></div>
         <div class="goal-section-body open" id="gsShortBody"><div id="goalListShort"></div></div>
       </div>
       <div class="goal-sub-card">
-        <div class="goal-section-header" id="gsDoneHdr"><span class="goal-section-title">✓ Completed</span><span class="goal-section-arrow" id="gsDoneArr">›</span></div>
+        <div class="goal-section-header" id="gsDoneHdr"><span class="goal-section-title">Completed</span><span class="goal-section-arrow" id="gsDoneArr">›</span></div>
         <div class="goal-section-body" id="gsDoneBody"><div id="goalListDone"></div></div>
       </div>
     </div>
@@ -874,3 +874,4 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
 </script>
 </body>
 </html>
+
