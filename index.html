@@ -707,6 +707,26 @@ select option{background:var(--s2);}
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+/* BIT SYSTEM */
+.bit-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.bit-modal-backdrop.open{opacity:1;pointer-events:all;}
+.bit-modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px 36px;width:100%;max-width:480px;transform:translateY(30px);transition:transform .25s ease;}
+.bit-modal-backdrop.open .bit-modal{transform:translateY(0);}
+.bit-ledger{margin-top:18px;}
+.bit-goal-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.bit-goal-name{font-size:12px;font-weight:600;color:var(--fg2);flex:0 0 110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bit-bar-wrap{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.bit-bar{height:100%;border-radius:4px;background:var(--accent);transition:width .4s ease;}
+.bit-bar.bug-bar{background:var(--moon);}
+.bit-count{font-size:12px;font-weight:700;color:var(--muted);min-width:28px;text-align:right;}
+.bug-log-item{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;}
+.bug-log-item:last-child{border-bottom:none;}
+.bug-log-desc{font-weight:600;color:var(--fg2);}
+.bit-section-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 0 2px;}
+.bit-section-label{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.bit-chevron{color:var(--muted);font-size:14px;transition:transform .2s;}
+.bit-chevron.open{transform:rotate(180deg);}
+
 /* ══════════════════════════════════
    SCROLLBAR DEFAULT
 ══════════════════════════════════ */
@@ -821,51 +841,75 @@ select option{background:var(--s2);}
 </div>
 
 <!-- FOCUS -->
-<div class="panel" id="panel-focus" role="main">
+<!-- TAB: FOCUS -->
+<div class="panel" id="panel-focus">
   <div class="timer-wrap">
-    <div class="timer-left">
-      <div class="timer-ring-wrap" id="timerRingWrap" role="button" aria-label="Start or pause timer" tabindex="0">
-        <svg viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg">
-          <circle class="ring-track" cx="105" cy="105" r="90"/>
-          <circle class="ring-fill focus" id="timerRing" cx="105" cy="105" r="90" stroke-dasharray="565" stroke-dashoffset="0"/>
-        </svg>
-        <div class="ring-center">
-          <div class="timer-time" id="timerTime" aria-live="polite">30:00</div>
-          <div class="timer-label" id="timerLabel">ready</div>
-          <div class="timer-badge" id="timerBadge" aria-live="polite">break</div>
-        </div>
-      </div>
-      <div class="break-hint" id="breakHint" aria-live="polite">press play for a 5 min break</div>
-      <div class="timer-controls">
-        <button class="t-btn" id="timerReset" aria-label="Reset timer">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.14"/></svg>
-        </button>
-        <button class="t-btn t-btn-play" id="timerPlay" aria-label="Start timer">
-          <svg id="tPlayI" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-          <svg id="tPauseI" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-        </button>
-        <button class="t-btn" id="timerSound" aria-label="Toggle sound">
-          <svg id="sndOn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-          <svg id="sndOff" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-        </button>
+    <div class="timer-ring-wrap" id="timerRingWrap">
+      <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="120" cy="120" r="106"/>
+        <circle class="ring-fill focus" id="timerRing" cx="120" cy="120" r="106" stroke-dasharray="666" stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-center">
+        <div class="timer-time" id="timerTime">30:00</div>
+        <div class="timer-label" id="timerLabel">ready</div>
+        <div class="timer-badge" id="timerBadge">break</div>
       </div>
     </div>
-    <div class="timer-right">
-      <div class="stat-card">
-        <div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
-        <div><div class="stat-val" id="statSessions">0</div><div class="stat-lbl">Sessions</div></div>
+    <div class="break-hint" id="breakHint">press play for a 5 min break</div>
+    <!-- Active session pill -->
+    <div id="activeSessionPill" style="display:none;text-align:center;margin-bottom:10px;">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--fg2);">
+        <span id="pillType" style="color:var(--accent)">●</span>
+        <span id="pillDesc" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div><div class="stat-val" id="statFocus">0m</div><div class="stat-lbl">Focus Time</div></div>
+    </div>
+    <div class="timer-controls">
+      <button class="t-btn" id="timerReset" aria-label="Reset">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.14"/></svg>
+      </button>
+      <button class="t-btn t-btn-play" id="timerPlay" aria-label="Play">
+        <svg id="tPlayI" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        <svg id="tPauseI" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+      </button>
+      <button class="t-btn" id="timerSound" aria-label="Sound">
+        <svg id="sndOn" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <svg id="sndOff" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+      </button>
+    </div>
+    <div class="timer-stats">
+      <div class="stat-card"><div class="stat-val" id="statSessions">0</div><div class="stat-lbl">Sessions</div></div>
+      <div class="stat-card"><div class="stat-val" id="statFocus">0m</div><div class="stat-lbl">Focus</div></div>
+      <div class="stat-card"><div class="stat-val" id="statGoals">0</div><div class="stat-lbl">Goals done</div></div>
+    </div>
+    <!-- BIT / BUG summary cards -->
+    <div class="timer-stats" style="margin-top:10px;">
+      <div class="stat-card" style="border-color:rgba(180,142,250,.25)"><div class="stat-val" id="statBits" style="color:var(--accent)">0</div><div class="stat-lbl" style="color:var(--accent)">Bits</div></div>
+      <div class="stat-card" style="border-color:rgba(240,208,128,.2)"><div class="stat-val" id="statBugs" style="color:var(--moon)">0</div><div class="stat-lbl" style="color:var(--moon)">Bugs</div></div>
+      <div class="stat-card"><div class="stat-val" id="statBitStreak">0</div><div class="stat-lbl">Bit streak</div></div>
+    </div>
+    <!-- Bit ledger -->
+    <div class="card" style="margin-top:18px;">
+      <div class="bit-section-toggle" id="bitLedgerToggle">
+        <span class="bit-section-label">Bits by goal</span>
+        <span class="bit-chevron" id="bitChevron1">▾</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-        <div><div class="stat-val" id="statGoals">0</div><div class="stat-lbl">Goals Done</div></div>
+      <div class="expandable" id="bitLedgerBody">
+        <div class="expandable-inner" id="bitLedgerContent"></div>
+      </div>
+    </div>
+    <!-- Bug log -->
+    <div class="card" style="margin-top:0;">
+      <div class="bit-section-toggle" id="bugLogToggle">
+        <span class="bit-section-label">Bug log</span>
+        <span class="bit-chevron" id="bitChevron2">▾</span>
+      </div>
+      <div class="expandable" id="bugLogBody">
+        <div class="expandable-inner" id="bugLogContent"></div>
       </div>
     </div>
   </div>
 </div>
+
 
 <!-- JOURNAL -->
 <div class="panel" id="panel-journal" role="main">
@@ -1008,6 +1052,28 @@ select option{background:var(--s2);}
 </div><!-- /app -->
 
 <!-- MODALS -->
+<!-- BIT SESSION MODAL -->
+<div class="bit-modal-backdrop" id="bitSessionModal">
+  <div class="bit-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:17px;font-weight:700;">Start session</div>
+      <button style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;" id="bitModalCancel">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">What are you working on?</label>
+      <input type="text" id="bitTaskDesc" placeholder="Describe the task briefly..."/>
+    </div>
+    <div class="form-group" style="margin-top:10px;">
+      <label class="form-label">Link to a goal? <span style="color:var(--muted);font-size:10px;text-transform:none;letter-spacing:0;">(optional — skip for a Bug)</span></label>
+      <select id="bitGoalSelect"></select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <div id="bitPreviewPill" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;font-weight:700;text-align:center;color:var(--muted);">— —</div>
+      <button class="btn btn-primary" style="flex:2;" id="bitModalStart">Start ▶</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="goalModal" role="dialog" aria-modal="true" aria-label="Add Goal">
   <div class="modal">
     <div class="modal-header">
@@ -1134,46 +1200,193 @@ document.addEventListener('click',e=>{
 // ═══════════════════════════════════
 // TIMER  r=90  circ=2π×90≈565
 // ═══════════════════════════════════
-const FOCUS_T=30*60,BREAK_T=5*60,CIRC=2*Math.PI*90;
-let tMode='focus',tTotal=FOCUS_T,tRem=FOCUS_T,tRun=false,tInt=null,tEpoch=null,tSound=true,aCtx=null;
+// ── TIMER ──
+const FOCUS_T=30*60,BREAK_T=5*60,CIRC=2*Math.PI*106;
+let tMode='focus',tTotal=FOCUS_T,tRem=FOCUS_T,tRun=false,tInt=null,tEpoch=null,tSound=true;
 let tSess=S.get('t_sess')||0,tFocM=S.get('t_foc')||0,tGoalsDone=S.get('t_goals')||0;
+let aCtx=null;
+
+// Bit system state
+let currentBitSession=null; // {desc, goalId, isBit}
 
 function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+
+function getBitStats(){
+  const sessions=S.get('bit_sessions')||[];
+  const bits=sessions.filter(s=>s.isBit);
+  const bugs=sessions.filter(s=>!s.isBit);
+  // streak: consecutive sessions (any) ending today that are bits
+  let streak=0;
+  const sorted=[...sessions].sort((a,b)=>b.ts-a.ts);
+  for(const s of sorted){if(s.isBit)streak++;else break;}
+  return{bits,bugs,streak};
+}
+
 function tRender(){
   document.getElementById('timerTime').textContent=fmt(tRem);
   document.getElementById('timerRing').style.strokeDashoffset=CIRC*(1-tRem/tTotal);
-  const urg=tRem<=60&&tRem>0&&tMode==='focus';
+  const urg=tRem<=60&&tRem>0;
   document.getElementById('timerRing').className='ring-fill '+(urg?'urgent':tMode==='break'?'break':'focus');
   document.getElementById('timerTime').classList.toggle('urgent',urg);
   document.getElementById('breakHint').classList.toggle('show',tMode==='break-prompt');
   document.getElementById('timerBadge').classList.toggle('show',tMode==='break');
-  const labels={focus:tRun?'focusing':tRem===tTotal?'ready':'paused','break-prompt':'well done','break':tRun?'break':'break'};
-  document.getElementById('timerLabel').textContent=labels[tMode]||'ready';
+  const lbl=tMode==='break-prompt'?'done':tRem<=0?'done':tRun?(tMode==='break'?'break':'focus'):tRem===tTotal?'ready':'paused';
+  document.getElementById('timerLabel').textContent=lbl;
   document.getElementById('statSessions').textContent=tSess;
   document.getElementById('statFocus').textContent=tFocM+'m';
   document.getElementById('statGoals').textContent=tGoalsDone;
+  // bit/bug stats
+  const bs=getBitStats();
+  document.getElementById('statBits').textContent=bs.bits.length;
+  document.getElementById('statBugs').textContent=bs.bugs.length;
+  document.getElementById('statBitStreak').textContent=bs.streak;
+  renderBitLedger();
 }
+
+function renderBitLedger(){
+  const sessions=S.get('bit_sessions')||[];
+  const goals=S.get('goals')||[];
+  // bits by goal
+  const bitMap={};
+  sessions.filter(s=>s.isBit).forEach(s=>{bitMap[s.goalId]=(bitMap[s.goalId]||0)+1;});
+  const maxBits=Math.max(1,...Object.values(bitMap));
+  const ledger=document.getElementById('bitLedgerContent');
+  if(!Object.keys(bitMap).length){ledger.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0;">No bits yet — link a session to a goal to earn bits.</div>';} 
+  else {
+    ledger.innerHTML=Object.entries(bitMap).sort((a,b)=>b[1]-a[1]).map(([gid,count])=>{
+      const goal=goals.find(g=>String(g.id)===String(gid));
+      const name=goal?goal.text.slice(0,24)+(goal.text.length>24?'…':''):'Unknown goal';
+      const pct=Math.round((count/maxBits)*100);
+      return`<div class="bit-goal-row"><div class="bit-goal-name" title="${name}">${name}</div><div class="bit-bar-wrap"><div class="bit-bar" style="width:${pct}%"></div></div><div class="bit-count">${count}</div></div>`;
+    }).join('');
+  }
+  // bug log
+  const bugs=sessions.filter(s=>!s.isBit).slice(-10).reverse();
+  const bugLog=document.getElementById('bugLogContent');
+  if(!bugs.length){bugLog.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0;">No bugs yet.</div>';}
+  else{bugLog.innerHTML=bugs.map(b=>{
+    const d=new Date(b.ts);const timeStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="bug-log-item"><span class="bug-log-desc">${b.desc||'(no description)'}</span><span style="white-space:nowrap">${timeStr}</span></div>`;
+  }).join('');}
+}
+
+function openBitModal(){
+  // populate goal dropdown
+  const goals=(S.get('goals')||[]).filter(g=>!g.done);
+  const sel=document.getElementById('bitGoalSelect');
+  sel.innerHTML='<option value="">— No goal (log as Bug) —</option>'+goals.map(g=>`<option value="${g.id}">${g.text.slice(0,42)+(g.text.length>42?'…':'')}</option>`).join('');
+  document.getElementById('bitTaskDesc').value='';
+  document.getElementById('bitPreviewPill').textContent='— —';
+  document.getElementById('bitPreviewPill').style.color='var(--muted)';
+  document.getElementById('bitSessionModal').classList.add('open');
+  setTimeout(()=>document.getElementById('bitTaskDesc').focus(),200);
+}
+
+function updateBitPreview(){
+  const goalId=document.getElementById('bitGoalSelect').value;
+  const pill=document.getElementById('bitPreviewPill');
+  if(goalId){pill.textContent='✦ Bit';pill.style.color='var(--accent)';}
+  else{pill.textContent='⚐ Bug';pill.style.color='var(--moon)';}
+}
+
+document.getElementById('bitGoalSelect').addEventListener('change',updateBitPreview);
+document.getElementById('bitTaskDesc').addEventListener('input',updateBitPreview);
+
+document.getElementById('bitModalCancel').addEventListener('click',()=>{
+  document.getElementById('bitSessionModal').classList.remove('open');
+});
+
+document.getElementById('bitModalStart').addEventListener('click',()=>{
+  const desc=document.getElementById('bitTaskDesc').value.trim();
+  if(!desc){toast('Describe the task first');return;}
+  const goalId=document.getElementById('bitGoalSelect').value;
+  currentBitSession={desc,goalId,isBit:!!goalId,startTs:Date.now()};
+  document.getElementById('bitSessionModal').classList.remove('open');
+  // show active pill
+  const pill=document.getElementById('activeSessionPill');
+  document.getElementById('pillType').textContent=currentBitSession.isBit?'✦':'⚐';
+  document.getElementById('pillType').style.color=currentBitSession.isBit?'var(--accent)':'var(--moon)';
+  document.getElementById('pillDesc').textContent=desc;
+  pill.style.display='block';
+  tActuallyStart();
+});
+
+function recordBitSession(){
+  if(!currentBitSession)return;
+  const sessions=S.get('bit_sessions')||[];
+  sessions.push({...currentBitSession,ts:Date.now()});
+  S.set('bit_sessions',sessions);
+  currentBitSession=null;
+  document.getElementById('activeSessionPill').style.display='none';
+  toast(sessions[sessions.length-1].isBit?'✦ Bit earned!':'⚐ Bug logged');
+}
+
 function getAC(){if(!aCtx)aCtx=new(window.AudioContext||window.webkitAudioContext)();return aCtx;}
-function beep(f,d,v){if(!tSound)return;try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(v||.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d);}catch(e){}}
+function beep(f,d,v){if(!tSound)return;try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(v||.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start(c.currentTime);o.stop(c.currentTime+d);}catch(e){}}
 function playDone(){[[523,0],[659,180],[784,360],[1047,600]].forEach(([f,t])=>setTimeout(()=>beep(f,.5,.22),t));}
 function playBDone(){[[880,0],[660,200],[440,450]].forEach(([f,t])=>setTimeout(()=>beep(f,.5,.18),t));}
+
 function tTick(){
   tRem=Math.max(0,tTotal-Math.floor((Date.now()-tEpoch)/1000));tRender();
   if(tRem===0){
-    if(tMode==='focus'){clearInterval(tInt);tRun=false;tMode='break-prompt';tSess++;tFocM+=30;S.set('t_sess',tSess);S.set('t_foc',tFocM);playDone();if('vibrate'in navigator)navigator.vibrate([200,100,200,100,400]);if(Notification.permission==='granted')new Notification('30 min done!',{body:'Take a break?'});tShowPlay();tRender();}
-    else if(tMode==='break'){clearInterval(tInt);tRun=false;playBDone();if('vibrate'in navigator)navigator.vibrate([300,100,300]);setTimeout(()=>{tMode='focus';tTotal=FOCUS_T;tRem=FOCUS_T;tShowPlay();tRender();},1500);}
-  }else document.title=fmt(tRem)+' · Wispora';
+    if(tMode==='focus'){
+      clearInterval(tInt);tRun=false;tMode='break-prompt';tSess++;tFocM+=30;
+      S.set('t_sess',tSess);S.set('t_foc',tFocM);
+      recordBitSession(); // ← record the bit/bug
+      playDone();
+      if('vibrate'in navigator)navigator.vibrate([200,100,200,100,400]);
+      if(Notification.permission==='granted')new Notification('30 min done',{body:'Take a break?'});
+      tShowPlay();tRender();
+    } else if(tMode==='break'){
+      clearInterval(tInt);tRun=false;playBDone();
+      if('vibrate'in navigator)navigator.vibrate([300,100,300]);
+      setTimeout(()=>{tMode='focus';tTotal=FOCUS_T;tRem=FOCUS_T;tShowPlay();tRender();},1500);
+    }
+  } else {document.title=fmt(tRem)+' · Wispora';}
 }
-function tShowPlay(){document.getElementById('tPlayI').style.display='';document.getElementById('tPauseI').style.display='none';document.getElementById('timerPlay').setAttribute('aria-label','Start timer');}
-function tShowPause(){document.getElementById('tPlayI').style.display='none';document.getElementById('tPauseI').style.display='';document.getElementById('timerPlay').setAttribute('aria-label','Pause timer');}
-function tStart(){if(tMode==='break-prompt'){tMode='break';tTotal=BREAK_T;tRem=BREAK_T;}if(tRem<=0){tReset();return;}tEpoch=Date.now()-(tTotal-tRem)*1000;tRun=true;tShowPause();tInt=setInterval(tTick,250);beep(440,.12,.15);if(Notification&&Notification.permission==='default')Notification.requestPermission();}
+
+function tShowPlay(){document.getElementById('tPlayI').style.display='';document.getElementById('tPauseI').style.display='none';}
+function tShowPause(){document.getElementById('tPlayI').style.display='none';document.getElementById('tPauseI').style.display='';}
+
+function tActuallyStart(){
+  if(tMode==='break-prompt'){tMode='break';tTotal=BREAK_T;tRem=BREAK_T;}
+  if(tRem<=0){tReset();return;}
+  tEpoch=Date.now()-(tTotal-tRem)*1000;tRun=true;tShowPause();tInt=setInterval(tTick,250);beep(440,.12,.15);
+  if(Notification&&Notification.permission==='default')Notification.requestPermission();
+}
+
+function tStart(){
+  // break resumes without modal
+  if(tMode==='break-prompt'){tActuallyStart();return;}
+  // resuming a paused session (already has context)
+  if(tRem<tTotal&&tRem>0&&currentBitSession){tActuallyStart();return;}
+  // fresh focus session → show bit modal
+  openBitModal();
+}
+
 function tPause(){clearInterval(tInt);tRun=false;tShowPlay();beep(330,.1,.1);tRender();}
-function tReset(){clearInterval(tInt);tRun=false;tMode='focus';tTotal=FOCUS_T;tRem=FOCUS_T;tShowPlay();document.title='Wispora';tRender();}
+function tReset(){
+  clearInterval(tInt);tRun=false;tMode='focus';tTotal=FOCUS_T;tRem=FOCUS_T;
+  currentBitSession=null;
+  document.getElementById('activeSessionPill').style.display='none';
+  tShowPlay();document.title='Wispora';tRender();
+}
+
 document.getElementById('timerPlay').addEventListener('click',()=>{if(tRun)tPause();else tStart();});
-document.getElementById('timerRingWrap').addEventListener('click',e=>{if(!e.target.closest('#timerPlay'))if(tRun)tPause();else tStart();});
-document.getElementById('timerRingWrap').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(tRun)tPause();else tStart();}});
+document.getElementById('timerRingWrap').addEventListener('click',e=>{if(!e.target.closest('#timerPlay')){if(tRun)tPause();else tStart();}});
 document.getElementById('timerReset').addEventListener('click',tReset);
-document.getElementById('timerSound').addEventListener('click',()=>{tSound=!tSound;document.getElementById('sndOn').style.display=tSound?'':'none';document.getElementById('sndOff').style.display=tSound?'none':'';document.getElementById('timerSound').setAttribute('aria-label',tSound?'Mute sound':'Unmute sound');});
+document.getElementById('timerSound').addEventListener('click',()=>{tSound=!tSound;document.getElementById('sndOn').style.display=tSound?'':'none';document.getElementById('sndOff').style.display=tSound?'none':'';});
+
+// ledger section toggles
+document.getElementById('bitLedgerToggle').addEventListener('click',()=>{
+  document.getElementById('bitLedgerBody').classList.toggle('open');
+  document.getElementById('bitChevron1').classList.toggle('open');
+});
+document.getElementById('bugLogToggle').addEventListener('click',()=>{
+  document.getElementById('bugLogBody').classList.toggle('open');
+  document.getElementById('bitChevron2').classList.toggle('open');
+});
+
 tRender();
 
 // ═══════════════════════════════════
