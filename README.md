@@ -158,7 +158,3 @@ The UI is built on a dark purple/indigo theme with a CSS custom property design 
 Typography uses **DM Sans** for UI text and **DM Mono** for numerical/timer displays.
 
 ---
-
-## 🙏 Credits
-
-Built by the Wispora team. Inspired by the philosophy that a great daily OS should be calm, focused, and entirely yours.
